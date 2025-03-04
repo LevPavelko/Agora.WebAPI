@@ -1,0 +1,6 @@
+@Agora.WebApi_HostAddress = http://localhost:5193
+
+GET {{Agora.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
