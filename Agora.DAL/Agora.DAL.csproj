@@ -8,9 +8,12 @@
 
   <ItemGroup>
     <Folder Include="EF\" />
-    <Folder Include="Entities\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Repository\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agora.Enums\Agora.Enums.csproj" />
   </ItemGroup>
 
 </Project>
