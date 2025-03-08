@@ -9,7 +9,9 @@ namespace Agora.DAL.Entities
         public OrderStatus Status { get; set; } 
         public DateOnly PaymentDeadline { get; set; }
 
+        public int? ProductId { get; set; }
         public virtual Product? Product { get; set; }
+
         public virtual Customer? Customer { get; set; }
         public virtual Payment? Payment { get; set; }
         public virtual Shipping? Shipping { get; set; }  
