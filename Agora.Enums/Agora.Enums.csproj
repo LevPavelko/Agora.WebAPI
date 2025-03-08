@@ -6,12 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="EF\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Agora.Enums\Agora.Enums.csproj" />
-  </ItemGroup>
-
 </Project>
