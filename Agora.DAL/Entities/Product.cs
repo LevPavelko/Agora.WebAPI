@@ -9,6 +9,7 @@ namespace Agora.DAL.Entities
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public decimal Rating { get; set; }
+        public string? ImagesPath { get; set; }
 
         public virtual Subcategory? Subcategory { get; set; }
         public virtual Category? Category { get; set; }
