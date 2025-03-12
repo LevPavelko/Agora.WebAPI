@@ -7,7 +7,7 @@ using Agora.Enums;
 
 namespace Agora.BLL.DTO
 {
-    public class SippingDTO //????
+    public class ShippingDTO //????
     {
         public int Id { get; set; }
         public ShippingStatus Status { get; set; }

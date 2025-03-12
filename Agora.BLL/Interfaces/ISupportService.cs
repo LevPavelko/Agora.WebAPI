@@ -12,7 +12,7 @@ namespace Agora.BLL.Interfaces
         Task<IQueryable<SupportDTO>> GetAll();
         Task<SupportDTO> Get(int id);
         Task Create(SupportDTO supportDTO);
-        Task Update(WishlistDTO supportDTO);
+        Task Update(SupportDTO supportDTO);
         Task Delete(int id);
     }
 }

@@ -9,10 +9,10 @@ namespace Agora.BLL.Interfaces
 {
     public interface IShippingService
     {
-        Task<IQueryable<SippingDTO>> GetAll();
-        Task<SippingDTO> Get(int id);
-        Task Create(SippingDTO sippingDTO);
-        Task Update(SippingDTO sippingDTO);
+        Task<IQueryable<ShippingDTO>> GetAll();
+        Task<ShippingDTO> Get(int id);
+        Task Create(ShippingDTO sippingDTO);
+        Task Update(ShippingDTO sippingDTO);
         Task Delete(int id);
     }
 }

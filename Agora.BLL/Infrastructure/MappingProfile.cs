@@ -14,6 +14,14 @@ namespace Agora.BLL.Infrastructure
         public MappingProfile()
         {
             CreateMap<User, UserDTO>();
+            CreateMap<Wishlist, WishlistDTO>();
+            CreateMap<Support, SupportDTO>();
+            CreateMap<Subcategory, SubcategoryDTO>();
+            CreateMap<Store, StoreDTO>();
+            CreateMap<Shipping, ShippingDTO>();
+            CreateMap<Seller, SellerDTO>();
+            CreateMap<SellerReview, SellerReviewDTO>();
+            CreateMap<Return, ReturnDTO>();
         }
     }
 }
