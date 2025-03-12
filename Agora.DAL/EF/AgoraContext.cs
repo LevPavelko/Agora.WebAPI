@@ -21,11 +21,13 @@ namespace Agora.DAL.EF
         public DbSet<FAQCategory> FAQCategories { get; set; }
         public DbSet<GiftCard> GiftCards { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
         public DbSet<Product> Products { get; set; }    
         public DbSet<ProductReview> ProductReviews { get; set; }
         public DbSet<Return> Returns { get; set; }
+        public DbSet<ReturnItem> ReturnItems { get; set; }
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<SellerReview> SellerReviews { get; set; }
         public DbSet<Shipping> Shippings { get; set; }

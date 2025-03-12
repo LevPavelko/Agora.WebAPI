@@ -2,6 +2,7 @@
 using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Agora.DAL.Repository
 {
@@ -38,6 +39,10 @@ namespace Agora.DAL.Repository
             Product? product = await db.Products.FindAsync(id);
             if (product != null)
                 db.Products.Remove(product);
+        }
+        public async Task<IEnumerable<Product>> Find(Expression<Func<Product, bool>> predicate)
+        {
+            return await db.Products.Where(predicate).ToListAsync();
         }
     }
 }
