@@ -27,13 +27,13 @@ namespace Agora.DAL.Repository
         private FAQRepository FAQRepository;
         private GiftCardRepository giftCardRepository;
         private OrderRepository orderRepository;
-        //private OrderItemRepository orderItemRepository;
+        private OrderItemRepository orderItemRepository;
         private PaymentMethodRepository paymentMethodRepository;
         private PaymentRepository paymentRepository;
         private ProductRepository productRepository;
         private ProductReviewRepository productReviewRepository;
         private ReturnRepository returnRepository;
-        //private ReturnItemRepository returnItemRepository;
+        private ReturnItemRepository returnItemRepository;
         private SellerRepository sellerRepository;
         private SellerReviewRepository sellerReviewRepository;
         private ShippingRepository shippingRepository;
@@ -169,15 +169,15 @@ namespace Agora.DAL.Repository
                 return orderRepository;
             }
         }
-        //public IRepository<OrderItem> OrderItems
-        //{
-        //    get
-        //    {
-        //        if (orderItemRepository == null)
-        //            orderItemRepository = new OrderItemRepository(db);
-        //        return orderItemRepository;
-        //    }
-        //}
+        public IRepository<OrderItem> OrderItems
+        {
+            get
+            {
+                if (orderItemRepository == null)
+                    orderItemRepository = new OrderItemRepository(db);
+                return orderItemRepository;
+            }
+        }
         public IRepository<PaymentMethod> PaymentMethods
         {
             get
@@ -223,15 +223,15 @@ namespace Agora.DAL.Repository
                 return returnRepository;
             }
         }
-        //public IRepository<ReturnItem> ReturnItems
-        //{
-        //    get
-        //    {
-        //        if (returnItemRepository == null)
-        //            returnItemRepository = new ReturnItemRepository(db);
-        //        return returnItemRepository;
-        //    }
-        //}
+        public IRepository<ReturnItem> ReturnItems
+        {
+            get
+            {
+                if (returnItemRepository == null)
+                    returnItemRepository = new ReturnItemRepository(db);
+                return returnItemRepository;
+            }
+        }
         public IRepository<Seller> Sellers
         {
             get

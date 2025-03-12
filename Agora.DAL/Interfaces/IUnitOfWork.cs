@@ -23,13 +23,13 @@ namespace Agora.DAL.Interfaces
         IRepository<FAQCategory> FAQCategories { get; }
         IRepository<GiftCard> GiftCards { get; }
         IRepository<Order> Orders { get; }
-        //IRepository<OrderItem> OrderItems { get; }
+        IRepository<OrderItem> OrderItems { get; }
         IRepository<Payment> Payments { get; }
         IRepository<PaymentMethod> PaymentMethods { get; }
         IRepository<Product> Products { get; }
         IRepository<ProductReview> ProductReviews { get; }
         IRepository<Return> Returns { get; }
-        //IRepository<ReturnItem> ReturnItems { get; }
+        IRepository<ReturnItem> ReturnItems { get; }
         IRepository<Seller> Sellers { get; }
         IRepository<SellerReview> SellerReviews { get; }
         IRepository<Shipping> Shippings { get; }
