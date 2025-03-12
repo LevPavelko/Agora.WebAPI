@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Agora.DAL\Agora.DAL.csproj" />
     <ProjectReference Include="..\Agora.Enums\Agora.Enums.csproj" />
   </ItemGroup>
