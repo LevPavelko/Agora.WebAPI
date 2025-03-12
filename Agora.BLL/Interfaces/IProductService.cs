@@ -10,7 +10,7 @@ namespace Agora.BLL.Interfaces
     public interface IProductService
     {
         Task<IQueryable<ProductDTO>> GetAll();
-        Task<IEnumerable<ProductDTO>> GetFilteredBy(string filter); // to be continued
+        Task<IEnumerable<ProductDTO>> GetFilteredByName(string filter); // to be continued
         Task<ProductDTO> Get(int id);
         Task Create(ProductDTO productDTO);
         Task Update(ProductDTO productDTO);

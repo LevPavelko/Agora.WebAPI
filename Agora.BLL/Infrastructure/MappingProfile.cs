@@ -22,6 +22,11 @@ namespace Agora.BLL.Infrastructure
             CreateMap<Seller, SellerDTO>();
             CreateMap<SellerReview, SellerReviewDTO>();
             CreateMap<Return, ReturnDTO>();
+            CreateMap<Product, ProductDTO>();
+            CreateMap<Payment, PaymentDTO>();
+            CreateMap<PaymentMethod, PaymentMethodDTO>();
+            CreateMap<Order, OrderDTO>();
+            CreateMap<OrderItem, OrderItemDTO>();
         }
     }
 }
