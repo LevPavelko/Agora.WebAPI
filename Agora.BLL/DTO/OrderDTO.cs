@@ -10,10 +10,10 @@ namespace Agora.BLL.DTO
     public class OrderDTO //??
     {
         public int Id { get; set; }
-        public int Quantity { get; set; }
+        public decimal TotalPrice { get; set; }
         public OrderStatus Status { get; set; }
         public DateOnly PaymentDeadline { get; set; }
-        public int? ProductId { get; set; }
+       
         //public ProductDTO Product { get; set; }
         //public CustomerDTO Customer { get; set; }
         //public PaymentDTO Payment { get; set; }

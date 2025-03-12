@@ -14,8 +14,10 @@ namespace Agora.BLL.DTO
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public decimal Rating { get; set; }
+        public string? ImagesPath { get; set; }
+        public bool IsAvailable { get; set; }
 
-       
+
 
 
     }

@@ -13,7 +13,7 @@ namespace Agora.BLL.DTO
         public ShippingStatus Status { get; set; }
         public string? TrackingNumber { get; set; }
         //public AddressDTO Address { get; set; }
-        public int? OrderId { get; set; }
+        public int? OrderItemId { get; set; }
         public int? DeliveryOptionsId { get; set; }
     }
 }
