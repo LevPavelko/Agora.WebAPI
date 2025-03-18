@@ -286,7 +286,7 @@ namespace Agora.DAL.Repository
                 return supportRepository;
             }
         }
-        public IRepository<User> Users
+        public IUserRepository Users
         {
             get
             {

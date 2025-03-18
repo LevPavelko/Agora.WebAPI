@@ -40,7 +40,24 @@ namespace Agora.BLL.Services
                 Name = user.Name,
                 Surname = user.Surname,
                 Email = user.Email,
-                Password = user.Password
+                Password = user.Password,
+                GoogleId = user.GoogleId
+
+            };
+        }
+        public async Task<UserDTO> GetByEmail(string email)
+        {
+            var user = await Database.Users.GetByEmail(email);
+            if (user == null)
+                throw new ValidationException("There is no user with this email", "");
+            return new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = user.Email,
+                Password = user.Password,
+                GoogleId = user.GoogleId
 
             };
         }

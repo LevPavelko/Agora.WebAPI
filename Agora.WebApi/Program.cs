@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Agora.BLL.Infrastructure;
 using Agora.BLL.Interfaces;
 using Agora.BLL.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Agora
 {
@@ -46,12 +49,30 @@ namespace Agora
             builder.Services.AddTransient<ISubcategoryService, SubcategoryService>();
             builder.Services.AddTransient<ISupportService, SupportService>();
             builder.Services.AddTransient<IWishlistService, WishlistService>();
+            builder.Services.AddTransient<IJWTService, JWTService>();
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            //JWT
+            builder.Services.AddAuthorization();
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                };
+            });
 
             var app = builder.Build();
 
@@ -63,7 +84,8 @@ namespace Agora
             //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseSession();
-          
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseStaticFiles();
             app.UseCors(builder => builder.WithOrigins("http://localhost:3000")
                                        .AllowAnyHeader()

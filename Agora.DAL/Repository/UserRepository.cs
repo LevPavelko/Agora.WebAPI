@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agora.DAL.Repository
 {
-    public class UserRepository: IRepository<User>
+    public class UserRepository: IUserRepository
     {
         private AgoraContext db;
         public UserRepository(AgoraContext context)
@@ -21,6 +21,11 @@ namespace Agora.DAL.Repository
         public async Task<User> Get(int id)
         {
             return await db.Users.FindAsync(id);
+        }
+        public async Task<User> GetByEmail(string email)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(a => a.Email == email);
+            return user;
         }
 
         public async Task Create(User user)
