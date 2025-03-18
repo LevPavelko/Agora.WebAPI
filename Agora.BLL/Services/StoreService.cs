@@ -16,11 +16,11 @@ namespace Agora.BLL.Services
     public class StoreService : IStoreService
     {
         IUnitOfWork Database { get; set; }
-        IMapper _mapper; 
+        IMapper _mapper;        
         public StoreService(IUnitOfWork database, IMapper mapper)
         {
             Database = database;
-            _mapper = mapper;
+            _mapper = mapper;           
         }
         public async Task<IQueryable<StoreDTO>> GetAll()
         {
@@ -38,17 +38,19 @@ namespace Agora.BLL.Services
                 Name = store.Name,
                 Description = store.Description,
                 CreatedAt = store.CreatedAt,
-                UpdatedAt = store.UpdatedAt
+                UpdatedAt = store.UpdatedAt,
+                SellerId = store.SellerId
             };
         }
         public async Task Create(StoreDTO storeDTO)
-        {
+        {        
             var store = new Store
             {
                 Name = storeDTO.Name,
                 Description = storeDTO.Description,
                 CreatedAt = storeDTO.CreatedAt,
-                UpdatedAt = storeDTO.UpdatedAt
+                UpdatedAt = storeDTO.UpdatedAt,
+                SellerId = storeDTO.SellerId
             };
             await Database.Stores.Create(store);
             await Database.Save();
@@ -61,7 +63,8 @@ namespace Agora.BLL.Services
                 Name = storeDTO.Name,
                 Description = storeDTO.Description,
                 CreatedAt = storeDTO.CreatedAt,
-                UpdatedAt = storeDTO.UpdatedAt
+                UpdatedAt = storeDTO.UpdatedAt,
+                SellerId = storeDTO.SellerId
             };
             Database.Stores.Update(store);
             await Database.Save();

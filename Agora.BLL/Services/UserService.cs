@@ -39,23 +39,39 @@ namespace Agora.BLL.Services
                 Id = user.Id,
                 Name = user.Name,
                 Surname = user.Surname,
+                PhoneNumber = user.PhoneNumber,
                 Email = user.Email,
                 Password = user.Password
 
             };
         }
-
         public async Task Create(UserDTO userDTO)
         {
             var user = new User
             {
                 Name = userDTO.Name,
                 Surname = userDTO.Surname,
+                PhoneNumber = userDTO.PhoneNumber,
+                Email = userDTO.Email,
+                Password = userDTO.Password
+            };
+            await Database.Users.Create(user);
+            await Database.Save();            
+        }
+
+        public async Task<int> CreateReturnId(UserDTO userDTO)
+        {            
+            var user = new User
+            {
+                Name = userDTO.Name,
+                Surname = userDTO.Surname,
+                PhoneNumber = userDTO.PhoneNumber,
                 Email = userDTO.Email,
                 Password = userDTO.Password
             };
             await Database.Users.Create(user);
             await Database.Save();
+            return user.Id;
         }
         public async Task Update(UserDTO userDTO)
         {
@@ -65,6 +81,7 @@ namespace Agora.BLL.Services
                 Id = userDTO.Id,
                 Name = userDTO.Name,
                 Surname = userDTO.Surname,
+                PhoneNumber = userDTO.PhoneNumber,
                 Email = userDTO.Email,
                 Password = userDTO.Password
             };

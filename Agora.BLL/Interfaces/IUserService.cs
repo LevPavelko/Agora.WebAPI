@@ -11,8 +11,9 @@ namespace Agora.BLL.Interfaces
     public interface IUserService
     {
         Task<IQueryable<UserDTO>> GetAll();
-        Task<UserDTO> Get(int id);
         Task Create(UserDTO userDTO);
+        Task<UserDTO> Get(int id);
+        Task<int> CreateReturnId(UserDTO userDTO);
         Task Update(UserDTO userDTO);
         Task Delete(int id);
 
