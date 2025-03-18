@@ -1,8 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Agora.BLL.DTO;
+using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
 using Agora.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using Konscious.Security.Cryptography;
 
 namespace Agora.Controllers
 {
@@ -29,7 +32,94 @@ namespace Agora.Controllers
             _countryService = countryService;
             _JWTService = JWTService;
         }
+        [HttpPost("register-seller")]
+        public async Task<IActionResult> RegisterSeller(RegSellerViewModel regSeller)
+        {             
+            try
+            {                
+                string hashedPassword = HashPassword(regSeller.Password);
 
-       
+                UserDTO userDTO = new UserDTO();
+                userDTO.Name = regSeller.Name;
+                userDTO.Surname = regSeller.Surname;
+                userDTO.PhoneNumber = regSeller.PhoneNumber;
+                userDTO.Password = hashedPassword;
+                userDTO.Email = regSeller.Email;
+
+                var userId = await _userService.CreateReturnId(userDTO);
+
+                SellerDTO sellerDTO = new SellerDTO();
+                sellerDTO.UserId = userId; 
+
+                int sellerId = await _sellerService.Create(sellerDTO);
+                
+                StoreDTO storeDTO = new StoreDTO();
+                storeDTO.Name = regSeller.StoreName;
+                storeDTO.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
+                storeDTO.SellerId = sellerId;
+                
+                await _storeService.Create(storeDTO);
+                
+                var country = await _countryService.Get(regSeller.CountryId);
+
+                if (country == null) return BadRequest("Invalid country ID.");
+
+                AddressDTO addressDTO = new AddressDTO();
+                
+                addressDTO.Appartement = regSeller.Appartement;
+                addressDTO.Building = regSeller.Building;
+                addressDTO.Street = regSeller.Street;
+                addressDTO.City = regSeller.City;
+                addressDTO.PostalCode = regSeller.PostalCode;
+                addressDTO.CountryId = country.Id;
+
+                await _addressService.Create(addressDTO);
+
+                var seller = await _sellerService.Get(sellerId);
+
+                return CreatedAtAction(nameof(RegisterSeller), new { id = seller.Id }, seller);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPost("register-user")]
+        public async Task<IActionResult> RegisterUser(RegUserViewModel regUser)
+        {
+            try
+            {
+                string hashedPassword = HashPassword(regUser.Password);
+
+                UserDTO userDTO = new UserDTO
+                {
+                    Name = regUser.Name,
+                    Surname = regUser.Surname,
+                    PhoneNumber = regUser.PhoneNumber,
+                    Password = hashedPassword,
+                    Email = regUser.Email
+                };
+
+                var userId = await _userService.CreateReturnId(userDTO);
+
+                var user = await _userService.Get(userId);
+
+                return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        private string HashPassword(string password)
+        {
+            using var hasher = new Argon2id(Encoding.UTF8.GetBytes(password));
+            hasher.DegreeOfParallelism = 8;
+            hasher.MemorySize = 65536;
+            hasher.Iterations = 4;
+            return Convert.ToBase64String(hasher.GetBytes(32));
+        }
     }
 }

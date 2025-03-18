@@ -56,6 +56,7 @@ namespace Agora.BLL.Services
                 Street = addressDTO.Street,
                 City = addressDTO.City,
                 PostalCode = addressDTO.PostalCode,
+                CountryId = addressDTO.CountryId
             };
             await Database.Addresses.Create(address);
             await Database.Save();
@@ -70,6 +71,7 @@ namespace Agora.BLL.Services
                 Street = addressDTO.Street,
                 City = addressDTO.City,
                 PostalCode = addressDTO.PostalCode,
+                CountryId = addressDTO.CountryId
             };
             Database.Addresses.Update(address);
             await Database.Save();

@@ -43,6 +43,11 @@ namespace Agora.DAL.Repository
         private UserRepository userRepository;
         private WishlistRepository wishlistRepository;
 
+        public EFUnitOfWork(AgoraContext context)
+        {
+            db = context;
+        }
+
         public IRepository<Address> Addresses
         {
             get

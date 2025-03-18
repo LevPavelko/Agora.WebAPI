@@ -13,6 +13,7 @@ namespace Agora.BLL.DTO
         public string? Description { get; set; }
         public DateOnly CreatedAt { get; set; }
         public DateOnly? UpdatedAt { get; set; }
+        public int? SellerId { get; set; }
         //public StoreDTO Store { get; set; }
     }
 }

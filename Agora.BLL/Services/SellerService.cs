@@ -42,7 +42,7 @@ namespace Agora.BLL.Services
             };
         }
 
-        public async Task Create(SellerDTO sellerDTO)
+        public async Task<int> Create(SellerDTO sellerDTO)
         {
             var seller = new Seller
             {
@@ -51,6 +51,8 @@ namespace Agora.BLL.Services
             };
             await Database.Sellers.Create(seller);
             await Database.Save();
+
+            return seller.Id;
         }
         public async Task Update(SellerDTO sellerDTO)
         {

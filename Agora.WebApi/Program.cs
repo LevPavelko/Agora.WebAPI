@@ -1,10 +1,11 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Agora.BLL.Infrastructure;
 using Agora.BLL.Interfaces;
 using Agora.BLL.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Scalar.AspNetCore;
 
 namespace Agora
 {
@@ -79,6 +80,7 @@ namespace Agora
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference();
             }
             app.UseAuthorization();
             //app.UseHttpsRedirection();
@@ -87,7 +89,7 @@ namespace Agora
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();
-            app.UseCors(builder => builder.WithOrigins("http://localhost:3000")
+            app.UseCors(builder => builder.WithOrigins("http://localhost:3000", "http://localhost:5193")// for React и Scalar
                                        .AllowAnyHeader()
                                        .AllowAnyMethod()
                                         .AllowCredentials());
