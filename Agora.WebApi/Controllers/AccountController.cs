@@ -78,6 +78,35 @@ namespace Agora.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        [HttpPost("register-user")]
+        public async Task<IActionResult> RegisterUser(RegUserViewModel regUser)
+        {
+            try
+            {
+                string hashedPassword = HashPassword(regUser.Password);
+
+                UserDTO userDTO = new UserDTO
+                {
+                    Name = regUser.Name,
+                    Surname = regUser.Surname,
+                    PhoneNumber = regUser.PhoneNumber,
+                    Password = hashedPassword,
+                    Email = regUser.Email
+                };
+
+                var userId = await _userService.CreateReturnId(userDTO);
+
+                var user = await _userService.Get(userId);
+
+                return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
         private string HashPassword(string password)
         {
             using var hasher = new Argon2id(Encoding.UTF8.GetBytes(password));
