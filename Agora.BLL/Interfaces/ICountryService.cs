@@ -9,7 +9,7 @@ namespace Agora.BLL.Interfaces
 {
     public interface ICountryService
     {
-        Task<IQueryable<CountryDTO>> GetAll();
+        Task<IEnumerable<CountryDTO>> GetAll();
         Task<CountryDTO> Get(int id);
         Task Create(CountryDTO countryDTO);
         Task Update(CountryDTO countryDTO);
