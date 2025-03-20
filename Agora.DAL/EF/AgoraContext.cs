@@ -56,6 +56,7 @@ namespace Agora.DAL.EF
 
                 string connectionString = config.GetConnectionString("DefaultConnection");
                 optionsBuilder.UseSqlServer(connectionString).UseLazyLoadingProxies();
+                
                 return new AgoraContext(optionsBuilder.Options);
             }
         }
