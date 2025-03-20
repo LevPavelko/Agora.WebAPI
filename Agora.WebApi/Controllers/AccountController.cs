@@ -121,5 +121,42 @@ namespace Agora.Controllers
             hasher.Iterations = 4;
             return Convert.ToBase64String(hasher.GetBytes(32));
         }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginModel model)
+        {
+            //Console.WriteLine($"Received request: Email={model.Email}, GoogleId={model.GoogleId}");
+            UserDTO user = await _userService.GetByEmail(model.Email);
+            if (user != null && user.GoogleId == "")
+            {
+                return new JsonResult(new { message = "You already have account!" }) { StatusCode = 400 };
+            }
+            if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
+            {
+                string jwtToken = _JWTService.GenerateJwtToken(user);
+                return Ok(new { jwtToken });
+            }
+            //return new JsonResult(new { message = "Error" }) { StatusCode = 400 };
+            return Unauthorized();
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+            UserDTO user = await _userService.GetByEmail(model.Email);
+            if (user == null)
+                return new JsonResult(new { message = "You don't have account! Sing up!" }) { StatusCode = 400 };
+            string hashedPass = HashPassword(model.Password);
+            if (user.Email.Equals(model.Email) && user.Password.Equals(hashedPass))
+            {
+                string jwtToken = _JWTService.GenerateJwtToken(user);
+                return Ok(new { jwtToken });
+            }
+            else
+            {
+                return new JsonResult(new { message = "Wrong password or email!" }) { StatusCode = 403 };
+            }
+
+        }
     }
 }
