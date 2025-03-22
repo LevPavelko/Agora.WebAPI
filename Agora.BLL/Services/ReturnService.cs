@@ -32,7 +32,7 @@ namespace Agora.BLL.Services
         {
             var oneReturn = await Database.Returns.Get(id);
             if (oneReturn == null)
-                throw new ValidationException("There is no return with this id", "");
+                throw new ValidationExceptionFromService("There is no return with this id", "");
             return new ReturnDTO
             {
                 Id = oneReturn.Id,

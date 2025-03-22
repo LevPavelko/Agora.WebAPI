@@ -31,7 +31,7 @@ namespace Agora.BLL.Services
         {
             var store = await Database.Stores.Get(id);
             if (store == null)
-                throw new ValidationException("There is no store with this id", "");
+                throw new ValidationExceptionFromService("There is no store with this id", "");
             return new StoreDTO
             {
                 Id = store.Id,

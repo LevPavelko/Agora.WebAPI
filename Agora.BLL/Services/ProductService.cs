@@ -38,7 +38,7 @@ namespace Agora.BLL.Services
         {
             var product = await Database.Products.Get(id);
             if (product == null)
-                throw new ValidationException("There is no product with this id", "");
+                throw new ValidationExceptionFromService("There is no product with this id", "");
             return new ProductDTO
             {
                 Id = product.Id,

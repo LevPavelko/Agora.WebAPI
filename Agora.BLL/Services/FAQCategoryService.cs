@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var faqCategory = await Database.FAQCategories.Get(id);
             if (faqCategory == null)
-                throw new ValidationException("There is no FAQ category with this id", "");
+                throw new ValidationExceptionFromService("There is no FAQ category with this id", "");
             return new FAQCategoryDTO
             {
                 Id = faqCategory.Id,

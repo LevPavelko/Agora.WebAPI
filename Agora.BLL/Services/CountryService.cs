@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var country = await Database.Countries.Get(id);
             if (country == null)
-                throw new ValidationException("There is no country with this id", "");
+                throw new ValidationExceptionFromService("There is no country with this id", "");
             return new CountryDTO
             {
                 Id = country.Id,

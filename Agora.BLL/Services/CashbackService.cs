@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var cashback = await Database.Cashbacks.Get(id);
             if (cashback == null)
-                throw new ValidationException("There is no cashback with this id", "");
+                throw new ValidationExceptionFromService("There is no cashback with this id", "");
             return new CashbackDTO
             {
                 Id = cashback.Id,

@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var admin = await Database.Admins.Get(id);
             if (admin == null)
-                throw new ValidationException("There is no admin with this id", "");
+                throw new ValidationExceptionFromService("There is no admin with this id", "");
             return new AdminDTO
             {
                 Id = admin.Id,

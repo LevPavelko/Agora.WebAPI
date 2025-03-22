@@ -31,7 +31,7 @@ namespace Agora.BLL.Services
         {
             var sellerReview = await Database.SellerReviews.Get(id);
             if (sellerReview == null)
-                throw new ValidationException("There is no seller review with this id", "");
+                throw new ValidationExceptionFromService("There is no seller review with this id", "");
             return new SellerReviewDTO
             {
                 Id = sellerReview.Id,

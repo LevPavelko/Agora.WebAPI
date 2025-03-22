@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Agora.BLL.DTO;
+using Agora.BLL.Infrastructure;
 using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
 using Agora.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using Konscious.Security.Cryptography;
+using System.ComponentModel.DataAnnotations;
 
 namespace Agora.Controllers
 {
@@ -143,19 +144,33 @@ namespace Agora.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            UserDTO user = await _userService.GetByEmail(model.Email);
-            if (user == null)
-                return new JsonResult(new { message = "You don't have account! Sing up!" }) { StatusCode = 400 };
-            string hashedPass = HashPassword(model.Password);
-            if (user.Email.Equals(model.Email) && user.Password.Equals(hashedPass))
+            try
             {
-                string jwtToken = _JWTService.GenerateJwtToken(user);
-                return Ok(new { jwtToken });
+                UserDTO user = await _userService.GetByEmail(model.Email);
+                if (user == null)
+                    return new JsonResult(new { message = "You don't have account! Sing up!" }) { StatusCode = 401 };
+                string hashedPass = HashPassword(model.Password);
+                if (user.Email.Equals(model.Email) && user.Password.Equals(hashedPass))
+                {
+                    string jwtToken = _JWTService.GenerateJwtToken(user);
+                    return Ok(new { jwtToken });
+                }
+                else
+                {
+                    return new JsonResult(new { message = "Wrong password or email!" }) { StatusCode = 403 };
+                }
+
             }
-            else
+            catch (ValidationExceptionFromService ex) 
             {
-                return new JsonResult(new { message = "Wrong password or email!" }) { StatusCode = 403 };
+                return new JsonResult(new { message = "You have to sing up first!" }) { StatusCode = 401 };
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new JsonResult(new { message = "Server error!" }) { StatusCode = 500 };
+            }
+
 
         }
     }

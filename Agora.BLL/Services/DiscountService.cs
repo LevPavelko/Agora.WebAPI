@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var discount = await Database.Discounts.Get(id);
             if (discount == null)
-                throw new ValidationException("There is no discount with this id", "");
+                throw new ValidationExceptionFromService("There is no discount with this id", "");
             return new DiscountDTO
             {
                 Id = discount.Id,

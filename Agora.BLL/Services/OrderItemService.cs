@@ -32,7 +32,7 @@ namespace Agora.BLL.Services
         {
             var order = await Database.OrderItems.Get(id);
             if (order == null)
-                throw new ValidationException("There is no order with this id", "");
+                throw new ValidationExceptionFromService("There is no order with this id", "");
             return new OrderItemDTO
             {
                 Id = order.Id,

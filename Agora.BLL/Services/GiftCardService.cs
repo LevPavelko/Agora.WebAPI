@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var giftCard = await Database.GiftCards.Get(id);
             if (giftCard == null)
-                throw new ValidationException("There is no gift card with this id", "");
+                throw new ValidationExceptionFromService("There is no gift card with this id", "");
             return new GiftCardDTO
             {
                 Id = giftCard.Id,

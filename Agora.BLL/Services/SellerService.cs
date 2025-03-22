@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var seller = await Database.Sellers.Get(id);
             if (seller == null)
-                throw new ValidationException("There is no seller with this id", "");
+                throw new ValidationExceptionFromService("There is no seller with this id", "");
             return new SellerDTO
             {
                 Id = seller.Id,

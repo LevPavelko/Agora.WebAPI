@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var user = await Database.Users.Get(id);
             if (user == null)
-                throw new ValidationException("There is no user with this id", "");
+                throw new ValidationExceptionFromService("There is no user with this id", "");
             return new UserDTO
             {
                 Id = user.Id,
@@ -50,7 +50,7 @@ namespace Agora.BLL.Services
         {
             var user = await Database.Users.GetByEmail(email);
             if (user == null)
-                throw new ValidationException("There is no user with this email", "");
+                throw new ValidationExceptionFromService("There is no user with this email", "");
             return new UserDTO
             {
                 Id = user.Id,

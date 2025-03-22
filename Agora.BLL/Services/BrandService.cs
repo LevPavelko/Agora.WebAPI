@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var brand = await Database.Brands.Get(id);
             if (brand == null)
-                throw new ValidationException("There is no brand with this id", "");
+                throw new ValidationExceptionFromService("There is no brand with this id", "");
             return new BrandDTO
             {
                 Id = brand.Id,

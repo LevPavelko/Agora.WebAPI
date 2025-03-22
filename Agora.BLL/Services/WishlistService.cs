@@ -32,7 +32,7 @@ namespace Agora.BLL.Services
         {
             var wishlist = await Database.Wishlists.Get(id);
             if(wishlist == null)
-                throw new ValidationException("There is no user with this id", "");
+                throw new ValidationExceptionFromService("There is no user with this id", "");
             return new WishlistDTO
             {
                 Id = wishlist.Id,

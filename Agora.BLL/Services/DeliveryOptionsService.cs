@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var deliveryOptions = await Database.DeliveryOptions.Get(id);
             if (deliveryOptions == null)
-                throw new ValidationException("There is no delivery option with this id", "");
+                throw new ValidationExceptionFromService("There is no delivery option with this id", "");
             return new DeliveryOptionsDTO
             {
                 Id = deliveryOptions.Id,

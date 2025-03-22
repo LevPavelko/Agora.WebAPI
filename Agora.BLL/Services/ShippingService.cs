@@ -30,7 +30,7 @@ namespace Agora.BLL.Services
         {
             var shipping = await Database.Shippings.Get(id);
             if (shipping == null)
-                throw new ValidationException("There is no shipping with this id", "");
+                throw new ValidationExceptionFromService("There is no shipping with this id", "");
             return new ShippingDTO
             {
                 Id = shipping.Id,

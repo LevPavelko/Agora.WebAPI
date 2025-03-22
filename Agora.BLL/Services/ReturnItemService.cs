@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var returnItem = await Database.ReturnItems.Get(id);
             if (returnItem == null)
-                throw new ValidationException("There is no return item with this id", "");
+                throw new ValidationExceptionFromService("There is no return item with this id", "");
             return new ReturnItemDTO
             {
                 Id = returnItem.Id,

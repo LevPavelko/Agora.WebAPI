@@ -31,7 +31,7 @@ namespace Agora.BLL.Services
         {
             var subcategory = await Database.Subcategories.Get(id);
             if(subcategory == null)
-                throw new ValidationException("There is no subcategory with this id", "");
+                throw new ValidationExceptionFromService("There is no subcategory with this id", "");
             return new SubcategoryDTO
             {
                 Id = subcategory.Id,

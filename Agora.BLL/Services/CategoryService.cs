@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var category = await Database.Categories.Get(id);
             if (category == null)
-                throw new ValidationException("There is no category with this id", "");
+                throw new ValidationExceptionFromService("There is no category with this id", "");
             return new CategoryDTO
             {
                 Id = category.Id,

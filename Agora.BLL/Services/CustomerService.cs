@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var customer = await Database.Customers.Get(id);
             if (customer == null)
-                throw new ValidationException("There is no customer with this id", "");
+                throw new ValidationExceptionFromService("There is no customer with this id", "");
             return new CustomerDTO
             {
                 Id = customer.Id,

@@ -32,7 +32,7 @@ namespace Agora.BLL.Services
         {
             var paymnetMethod = await Database.PaymentMethods.Get(id);
             if (paymnetMethod == null)
-                throw new ValidationException("There is no record with this id", "");
+                throw new ValidationExceptionFromService("There is no record with this id", "");
             return new PaymentMethodDTO
             {
                 Id = paymnetMethod.Id,

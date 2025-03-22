@@ -32,7 +32,7 @@ namespace Agora.BLL.Services
         {
             var support = await Database.Supports.Get(id);
             if(support == null)
-                throw new ValidationException("There is no row with this id", "");
+                throw new ValidationExceptionFromService("There is no row with this id", "");
             return new SupportDTO
             {
                 Id = support.Id,

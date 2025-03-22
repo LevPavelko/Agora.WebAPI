@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var bankCard = await Database.BankCards.Get(id);
             if (bankCard == null)
-                throw new ValidationException("There is no bank card with this id", "");
+                throw new ValidationExceptionFromService("There is no bank card with this id", "");
             return new BankCardDTO
             {
                 Id = bankCard.Id,

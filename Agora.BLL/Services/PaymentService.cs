@@ -32,7 +32,7 @@ namespace Agora.BLL.Services
         {
             var payment = await Database.Payments.Get(id);
             if (payment == null)
-                throw new ValidationException("There is no user with this id", "");
+                throw new ValidationExceptionFromService("There is no user with this id", "");
             return new PaymentDTO
             {
                 Id = payment.Id,

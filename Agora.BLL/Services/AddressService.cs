@@ -33,7 +33,7 @@ namespace Agora.BLL.Services
         {
             var address = await Database.Addresses.Get(id);
             if (address == null)
-                throw new ValidationException("There is no address with this id", "");
+                throw new ValidationExceptionFromService("There is no address with this id", "");
             return new AddressDTO
             {
                 Id = address.Id,
