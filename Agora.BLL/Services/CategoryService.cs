@@ -22,12 +22,13 @@ namespace Agora.BLL.Services
             Database = uow;
             _mapper = mapper;
         }
-
-        public async Task<IQueryable<CategoryDTO>> GetAll()
+        public async Task<IEnumerable<CategoryDTO>> GetAll()
         {
             var categories = await Database.Categories.GetAll();
-            return _mapper.Map<IQueryable<CategoryDTO>>(categories.ToList());
+            return _mapper.Map<IQueryable<Category>, IEnumerable<CategoryDTO>>(categories);
         }
+
+       
 
         public async Task<CategoryDTO> Get(int id)
         {
