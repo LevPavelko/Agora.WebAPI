@@ -9,7 +9,7 @@ namespace Agora.BLL.Interfaces
 {
     public interface ISellerReviewService
     {
-        Task<IQueryable<SellerReviewDTO>> GetAll();
+        Task<IEnumerable<SellerReviewDTO>> GetAll();
         Task<SellerReviewDTO> Get(int id);
         Task Create(SellerReviewDTO sellerReviewDTO);
         Task Update(SellerReviewDTO sellerReviewDTO);

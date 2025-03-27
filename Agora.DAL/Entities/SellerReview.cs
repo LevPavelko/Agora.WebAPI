@@ -8,7 +8,9 @@ namespace Agora.DAL.Entities
         public decimal Rating { get; set; }
         public DateOnly Date { get; set; }
 
-        public virtual Seller? Seller { get; set; }
+        public int? SellerId { get; set; }
+        public virtual Seller? Seller { get; set; }        
+             
         public virtual Customer? Customer { get; set; }
     }
 }
