@@ -21,11 +21,10 @@ namespace Agora.BLL.Services
             Database = database;
             _mapper = mapper;
         }
-        public async Task<IQueryable<SellerReviewDTO>> GetAll()
+        public async Task<IEnumerable<SellerReviewDTO>> GetAll()
         {
             var sellerReviews = await Database.SellerReviews.GetAll();
-            return _mapper.Map<IQueryable<SellerReviewDTO>>(sellerReviews.ToList());
-
+            return _mapper.Map<IQueryable<SellerReview>, IEnumerable<SellerReviewDTO>>(sellerReviews);
         }
         public async Task<SellerReviewDTO> Get(int id)
         {
@@ -37,7 +36,8 @@ namespace Agora.BLL.Services
                 Id = sellerReview.Id,
                 Comment = sellerReview.Comment,
                 Rating = sellerReview.Rating,
-                Date = sellerReview.Date
+                Date = sellerReview.Date,
+                SellerId = sellerReview.SellerId
             };
         }
 
@@ -47,7 +47,8 @@ namespace Agora.BLL.Services
             {
                 Comment = sellerReviewDTO.Comment,
                 Rating = sellerReviewDTO.Rating,
-                Date = sellerReviewDTO.Date
+                Date = sellerReviewDTO.Date,
+                SellerId = sellerReviewDTO.SellerId
             };
             await Database.SellerReviews.Create(sellerReview);
             await Database.Save();
@@ -59,7 +60,8 @@ namespace Agora.BLL.Services
                 Id = sellerReviewDTO.Id,
                 Comment = sellerReviewDTO.Comment,
                 Rating = sellerReviewDTO.Rating,
-                Date = sellerReviewDTO.Date
+                Date = sellerReviewDTO.Date,
+                SellerId = sellerReviewDTO.SellerId
             };
             Database.SellerReviews.Update(sellerReview);
             await Database.Save();

@@ -9,7 +9,7 @@ namespace Agora.BLL.Interfaces
 {
     public interface ICategoryService
     {
-        Task<IQueryable<CategoryDTO>> GetAll();
+        Task<IEnumerable<CategoryDTO>> GetAll();
         Task<CategoryDTO> Get(int id);
         Task Create(CategoryDTO categoryDTO);
         Task Update(CategoryDTO categoryDTO);
