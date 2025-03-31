@@ -8,7 +8,7 @@ namespace Agora.BLL.Infrastructure
     {
         public static void AddAgoraContext(this IServiceCollection services, string connection)
         {
-             services.AddDbContext<AgoraContext>(options => options.UseLazyLoadingProxies().UseSqlServer(connection));           
+             services.AddDbContext<AgoraContext>(options => options.UseLazyLoadingProxies().UseMySql(connection, ServerVersion.AutoDetect(connection)));
         }
     }
 }

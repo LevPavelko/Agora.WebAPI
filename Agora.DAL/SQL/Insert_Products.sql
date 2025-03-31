@@ -1,4 +1,4 @@
-﻿USE Agora;
+﻿USE agora;
 
 INSERT INTO Products (Name, Description, Price, StockQuantity, Rating, ImagesPath, IsAvailable, SubcategoryId, CategoryId, BrandId, StoreId) 
 VALUES (
