@@ -57,7 +57,7 @@ namespace Agora.DAL.Repository
                 return addressRepository;
             }
         }
-        public IRepository<Admin> Admins
+        public IAdminRepository Admins
         {
             get
             {
@@ -111,7 +111,7 @@ namespace Agora.DAL.Repository
                 return countryRepository;
             }
         }
-        public IRepository<Customer> Customers
+        public ICustomerRepository Customers
         {
             get
             {
@@ -237,7 +237,7 @@ namespace Agora.DAL.Repository
                 return returnItemRepository;
             }
         }
-        public IRepository<Seller> Sellers
+        public ISellerRepository Sellers
         {
             get
             {

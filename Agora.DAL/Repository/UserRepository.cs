@@ -2,6 +2,7 @@
 using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Agora.DAL.Repository
 {
@@ -27,6 +28,7 @@ namespace Agora.DAL.Repository
             var user = await db.Users.FirstOrDefaultAsync(a => a.Email == email);
             return user;
         }
+  
 
         public async Task Create(User user)
         {

@@ -10,13 +10,13 @@ namespace Agora.DAL.Interfaces
     public interface IUnitOfWork
     {
         IRepository<Address> Addresses { get; }
-        IRepository<Admin> Admins { get; }
+        IAdminRepository Admins { get; }
         IRepository<BankCard> BankCards { get; }
         IRepository<Brand> Brands { get; }
         IRepository<Cashback> Cashbacks { get; }
         IRepository<Category> Categories { get; }
         IRepository<Country> Countries { get; }
-        IRepository<Customer> Customers { get; }
+        ICustomerRepository Customers { get; }
         IRepository<DeliveryOptions> DeliveryOptions { get; }
         IRepository<Discount> Discounts { get; }
         IRepository<FAQ> FAQs { get; }
@@ -30,7 +30,7 @@ namespace Agora.DAL.Interfaces
         IRepository<ProductReview> ProductReviews { get; }
         IRepository<Return> Returns { get; }
         IRepository<ReturnItem> ReturnItems { get; }
-        IRepository<Seller> Sellers { get; }
+        ISellerRepository Sellers { get; }
         IRepository<SellerReview> SellerReviews { get; }
         IRepository<Shipping> Shippings { get; }
         IRepository<Store> Stores { get; }

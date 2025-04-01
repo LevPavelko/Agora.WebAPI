@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agora.DAL.Repository
 {
-    public class SellerRepository: IRepository<Seller>
+    public class SellerRepository: ISellerRepository
     {
         private AgoraContext db;
         public SellerRepository(AgoraContext context)
@@ -21,6 +21,10 @@ namespace Agora.DAL.Repository
         public async Task<Seller> Get(int id)
         {
             return await db.Sellers.FindAsync(id);
+        }
+        public async Task<Seller> GetByUserId(int id)
+        {
+            return await db.Sellers.FirstOrDefaultAsync(a => a.UserId == id);
         }
 
         public async Task Create(Seller seller)

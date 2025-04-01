@@ -14,6 +14,7 @@ namespace Agora.BLL.Interfaces
         Task<UserDTO> Get(int id);
         Task<int> CreateReturnId(UserDTO userDTO);
         Task<UserDTO> GetByEmail(string email);
+        Task<RoleDTO> GetRoleByUserId(int id);
         Task Create(UserDTO userDTO);
         Task Update(UserDTO userDTO);
         Task Delete(int id);

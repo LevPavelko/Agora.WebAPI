@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Scalar.AspNetCore;
+using Agora.Utils;
 
 namespace Agora
 {
@@ -82,7 +83,10 @@ namespace Agora
                 app.MapOpenApi();
                 app.MapScalarApiReference();
             }
-            app.UseAuthorization();
+            app.UseCors("AllowFrontend");
+            app.UseAuthentication();  // Сначала Authentication
+            app.UseAuthorization();   // Потом Authorization
+            //app.UseMiddleware<JwtValidationMiddleware>();
             //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseSession();

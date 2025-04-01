@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agora.DAL.Repository
 {
-    public class AdminRepository : IRepository<Admin>
+    public class AdminRepository : IAdminRepository
     {
         private AgoraContext db;
         public AdminRepository(AgoraContext context)
@@ -21,6 +21,10 @@ namespace Agora.DAL.Repository
         public async Task<Admin> Get(int id)
         {
             return await db.Admins.FindAsync(id);
+        }
+        public async Task<Admin> GetByUserId(int id)
+        {
+            return await db.Admins.FirstOrDefaultAsync(a => a.UserId == id);
         }
 
         public async Task Create(Admin admin)

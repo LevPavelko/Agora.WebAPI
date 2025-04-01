@@ -62,6 +62,46 @@ namespace Agora.BLL.Services
 
             };
         }
+
+        public async Task<RoleDTO> GetRoleByUserId(int id)
+        {
+            var customer = await Database.Customers.GetByUserId(id);
+            if (customer != null)
+            {
+                return new RoleDTO
+                {
+                    Role = "Customer",
+                    Id = customer.Id,
+                    UserId = id
+                };
+            }
+
+            var admin = await Database.Admins.GetByUserId(id);
+            if (admin != null)
+            {
+                return new RoleDTO
+                {
+                    Role = "Admin",
+                    Id = admin.Id,
+                    UserId = id
+                };
+            }
+
+            var seller = await Database.Sellers.GetByUserId(id);
+            if (seller != null)
+            {
+                return new RoleDTO
+                {
+                    Role = "Seller",
+                    Id = seller.Id,
+                    UserId = id
+                };
+            }
+
+            throw new ValidationExceptionFromService("There is no user with this id", "");
+        }
+
+
         public async Task Create(UserDTO userDTO)
         {
             var user = new User
