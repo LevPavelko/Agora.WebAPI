@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using Konscious.Security.Cryptography;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Agora.Controllers
 {
@@ -21,9 +26,10 @@ namespace Agora.Controllers
         private readonly IAddressService _addressService;
         private readonly ICountryService _countryService;
         private readonly IJWTService _JWTService;
+        private readonly IConfiguration _config;
 
         public AccountController(IUserService userService, ISellerService sellerService, IStoreService storeService, IAddressService addressService, 
-            ICountryService countryService, IJWTService JWTService)
+            ICountryService countryService, IJWTService JWTService, IConfiguration config)
 
         {
             _userService = userService;
@@ -32,6 +38,7 @@ namespace Agora.Controllers
             _addressService = addressService;
             _countryService = countryService;
             _JWTService = JWTService;
+            _config = config;
         }
         [HttpPost("register-seller")]
         public async Task<IActionResult> RegisterSeller(RegSellerViewModel regSeller)
@@ -134,7 +141,8 @@ namespace Agora.Controllers
             }
             if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
             {
-                string jwtToken = _JWTService.GenerateJwtToken(user);
+                var role = await _userService.GetRoleByUserId(user.Id);
+                string jwtToken = _JWTService.GenerateJwtToken(user, role);
                 return Ok(new { jwtToken });
             }
             //return new JsonResult(new { message = "Error" }) { StatusCode = 400 };
@@ -152,8 +160,17 @@ namespace Agora.Controllers
                 string hashedPass = HashPassword(model.Password);
                 if (user.Email.Equals(model.Email) && user.Password.Equals(hashedPass))
                 {
-                    string jwtToken = _JWTService.GenerateJwtToken(user);
-                    return Ok(new { jwtToken });
+                    var role = await _userService.GetRoleByUserId(user.Id);
+                    string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                    Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
+                    {
+                        HttpOnly = true,
+                        Secure = false, //  Если HTTPS то true
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTime.UtcNow.AddMinutes(30)
+                    });
+
+                    return Ok(new { message = "Authenticated" });
                 }
                 else
                 {
@@ -172,6 +189,45 @@ namespace Agora.Controllers
             }
 
 
+        }
+
+        [HttpGet("user-info")]  
+        public IActionResult GetUserInfo()
+        {
+            
+            var token = HttpContext.Request.Cookies["jwt"]; // "jwt" — это имя cookie
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("No token provided.");
+            }
+
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _config["Jwt:Issuer"],
+                    ValidAudience = _config["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                }, out SecurityToken validatedToken);
+
+                
+                var role = principal.FindFirst(ClaimTypes.Role)?.Value;
+                var email = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+                return Ok(new { Email = email, Role = role });
+            }
+            catch (SecurityTokenException)
+            {
+                return Unauthorized("Invalid token.");
+            }
         }
     }
 }
