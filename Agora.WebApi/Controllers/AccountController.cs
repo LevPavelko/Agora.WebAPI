@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using Konscious.Security.Cryptography;
 using System.ComponentModel.DataAnnotations;
+using Agora.DAL.Entities;
 
 namespace Agora.Controllers
 {
@@ -21,9 +22,10 @@ namespace Agora.Controllers
         private readonly IAddressService _addressService;
         private readonly ICountryService _countryService;
         private readonly IJWTService _JWTService;
+        private readonly ICustomerService _customerService;
 
         public AccountController(IUserService userService, ISellerService sellerService, IStoreService storeService, IAddressService addressService, 
-            ICountryService countryService, IJWTService JWTService)
+            ICountryService countryService, IJWTService JWTService, ICustomerService customerService)
 
         {
             _userService = userService;
@@ -32,7 +34,9 @@ namespace Agora.Controllers
             _addressService = addressService;
             _countryService = countryService;
             _JWTService = JWTService;
+            _customerService = customerService;
         }
+
         [HttpPost("register-seller")]
         public async Task<IActionResult> RegisterSeller(RegSellerViewModel regSeller)
         {             
@@ -106,7 +110,15 @@ namespace Agora.Controllers
 
                 var user = await _userService.Get(userId);
 
-                return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, user);
+                string jwtToken = _JWTService.GenerateJwtToken(user);
+
+                bool customerCreated = await _customerService.CreateForUser(userId);
+                if (!customerCreated)
+                {
+                    return StatusCode(500, "Error occurred while creating customer record.");
+                }
+
+                return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, new { user, jwtToken });
             }
             catch (Exception ex)
             {
@@ -126,19 +138,61 @@ namespace Agora.Controllers
         [HttpPost("google-login")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginModel model)
         {
-            //Console.WriteLine($"Received request: Email={model.Email}, GoogleId={model.GoogleId}");
-            UserDTO user = await _userService.GetByEmail(model.Email);
-            if (user != null && user.GoogleId == "")
+            UserDTO user = null;
+
+            try
             {
-                return new JsonResult(new { message = "You already have account!" }) { StatusCode = 400 };
+                user = await _userService.GetByEmail(model.Email);
             }
-            if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
+            catch (ValidationExceptionFromService ex)
             {
-                string jwtToken = _JWTService.GenerateJwtToken(user);
-                return Ok(new { jwtToken });
+                if (ex.Message == "There is no user with this email")
+                {
+                    user = null;
+                }
+                else
+                {
+                    return StatusCode(500, new { message = "Internal Server Error" });
+                }
             }
-            //return new JsonResult(new { message = "Error" }) { StatusCode = 400 };
-            return Unauthorized();
+
+            if (user != null)
+            {
+                if (user.GoogleId == "")
+                {
+                    return new JsonResult(new { message = "You already have an account, but it's not linked to Google." }) { StatusCode = 400 };
+                }
+
+                if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
+                {
+                    string jwtToken = _JWTService.GenerateJwtToken(user);
+                    return Ok(new { jwtToken });
+                }
+                else
+                {
+                    return new JsonResult(new { message = "Google ID does not match." }) { StatusCode = 400 };
+                }
+            }
+            else
+            {
+                var newUser = new UserDTO
+                {
+                    Name = model.Name,
+                    Email = model.Email,
+                    GoogleId = model.GoogleId
+                };
+
+                bool result = await _userService.CreateGoogle(newUser);
+                if (result)
+                {
+                    string jwtToken = _JWTService.GenerateJwtToken(newUser);
+                    return Ok(new { jwtToken });
+                }
+                else
+                {
+                    return new JsonResult(new { message = "Error occurred during registration." }) { StatusCode = 500 };
+                }
+            }
         }
 
         [HttpPost("login")]
@@ -170,8 +224,6 @@ namespace Agora.Controllers
                 Console.WriteLine(ex.Message);
                 return new JsonResult(new { message = "Server error!" }) { StatusCode = 500 };
             }
-
-
         }
     }
 }

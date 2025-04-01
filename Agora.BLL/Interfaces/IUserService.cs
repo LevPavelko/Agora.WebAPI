@@ -17,6 +17,6 @@ namespace Agora.BLL.Interfaces
         Task Create(UserDTO userDTO);
         Task Update(UserDTO userDTO);
         Task Delete(int id);
-
+        Task<bool> CreateGoogle(UserDTO userDTO);
     }
 }
