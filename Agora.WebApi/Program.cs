@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Scalar.AspNetCore;
-using Agora.Utils;
+
 
 namespace Agora
 {
@@ -75,6 +75,17 @@ namespace Agora
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
             });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000", "http://localhost:5193")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
+
 
             var app = builder.Build();
 
@@ -83,20 +94,19 @@ namespace Agora
                 app.MapOpenApi();
                 app.MapScalarApiReference();
             }
-            app.UseCors("AllowFrontend");
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();  // Сначала Authentication
             app.UseAuthorization();   // Потом Authorization
             //app.UseMiddleware<JwtValidationMiddleware>();
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseSession();
-            app.UseAuthentication();
-            app.UseAuthorization();
+    
             app.UseStaticFiles();
-            app.UseCors(builder => builder.WithOrigins("http://localhost:3000", "http://localhost:5193")// for React и Scalar
-                                       .AllowAnyHeader()
-                                       .AllowAnyMethod()
-                                        .AllowCredentials());
+            //app.UseCors(builder => builder.WithOrigins("http://localhost:3000", "http://localhost:5193")// for React и Scalar
+            //                           .AllowAnyHeader()
+            //                           .AllowAnyMethod()
+            //                            .AllowCredentials());
 
             app.MapControllers();
 

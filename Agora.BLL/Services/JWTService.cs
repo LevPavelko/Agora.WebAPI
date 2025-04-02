@@ -44,6 +44,41 @@ namespace Agora.BLL.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public RoleDTO DecryptJwtToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _config["Jwt:Issuer"],
+                ValidAudience = _config["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            }, out SecurityToken validatedToken);
+
+
+            var role = principal.FindFirst(ClaimTypes.Role)?.Value;
+            var stringId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int id = 0;
+            Int32.TryParse(stringId, out id);
+
+            var stringUserId = principal.FindFirst(ClaimTypes.UserData)?.Value;
+            int userId = 0;
+            Int32.TryParse(stringUserId, out userId);
+
+            var email = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            RoleDTO roleDTO = new RoleDTO();
+            roleDTO.Role = role;
+            roleDTO.Id = id;
+            roleDTO.UserId = userId;
+            return roleDTO;
+
+        }
+
 
     }
 }

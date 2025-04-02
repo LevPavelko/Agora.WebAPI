@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Agora.Controllers
 {
@@ -165,8 +166,8 @@ namespace Agora.Controllers
                     Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
                     {
                         HttpOnly = true,
-                        Secure = false, //  Если HTTPS то true
-                        SameSite = SameSiteMode.Strict,
+                        Secure = true, //  Если HTTPS то true
+                        SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddMinutes(30)
                     });
 
@@ -191,38 +192,27 @@ namespace Agora.Controllers
 
         }
 
-        [HttpGet("user-info")]  
-        public IActionResult GetUserInfo()
+        [HttpGet("get-user-role")]  
+        public IActionResult GetUserRole()
         {
-            
-            var token = HttpContext.Request.Cookies["jwt"]; // "jwt" — это имя cookie
+            var authHeader = HttpContext.Request.Headers["JWT"].FirstOrDefault();
+            string token = null;
+
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                token = authHeader;
+            }
 
             if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized("No token provided.");
             }
 
+
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
-
-                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _config["Jwt:Issuer"],
-                    ValidAudience = _config["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                }, out SecurityToken validatedToken);
-
-                
-                var role = principal.FindFirst(ClaimTypes.Role)?.Value;
-                var email = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-
-                return Ok(new { Email = email, Role = role });
+                var roleDTO = _JWTService.DecryptJwtToken(token);
+                return Ok(new { Role = roleDTO.Role });
             }
             catch (SecurityTokenException)
             {

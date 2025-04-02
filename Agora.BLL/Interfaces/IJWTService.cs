@@ -10,5 +10,6 @@ namespace Agora.BLL.Interfaces
     public interface IJWTService
     {
         string GenerateJwtToken(UserDTO userDTO, RoleDTO roleDTO);
+       RoleDTO DecryptJwtToken(string token);
     }
 }
