@@ -68,5 +68,25 @@ namespace Agora.BLL.Services
             await Database.Customers.Delete(id);
             await Database.Save();
         }
+
+        public async Task<bool> CreateForUser(int userId)
+        {
+            try
+            {
+                var customer = new Customer
+                {
+                    UserId = userId,
+                };
+
+                await Database.Customers.Create(customer);
+                await Database.Save();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

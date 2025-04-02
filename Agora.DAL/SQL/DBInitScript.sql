@@ -1,4 +1,6 @@
-﻿INSERT INTO FAQCategories (Name) VALUES
+﻿USE agora;
+
+INSERT INTO FAQCategories (Name) VALUES
 ('Payments'),
 ('Orders & Returns'),
 ('Shipping & Delivery'),
@@ -257,8 +259,8 @@ INSERT INTO Stores (Name, Description, CreatedAt, UpdatedAt, SellerId)
 VALUES (
     'Agora Store', 
     'Official Agora store', 
-    GETDATE(), 
-    GETDATE(), 
+    CURDATE(),
+    CURDATE(),
     (SELECT Id FROM Sellers WHERE UserId = (SELECT Id FROM Users WHERE Email = 'support@agora.com'))
 );
 

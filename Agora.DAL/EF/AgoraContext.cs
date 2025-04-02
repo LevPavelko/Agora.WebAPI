@@ -53,10 +53,12 @@ namespace Agora.DAL.EF
                 builder.SetBasePath(Directory.GetCurrentDirectory());
                 builder.AddJsonFile("appsettings.json");
                 IConfigurationRoot config = builder.Build();
-
+           
                 string connectionString = config.GetConnectionString("DefaultConnection");
-                optionsBuilder.UseSqlServer(connectionString).UseLazyLoadingProxies();
-                
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+                              .UseLazyLoadingProxies();
+
+
                 return new AgoraContext(optionsBuilder.Options);
             }
         }

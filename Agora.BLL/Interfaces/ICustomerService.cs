@@ -14,5 +14,6 @@ namespace Agora.BLL.Interfaces
         Task Create(CustomerDTO customerDTO);
         Task Update(CustomerDTO customerDTO);
         Task Delete(int id);
+        Task<bool> CreateForUser(int userId);
     }
 }

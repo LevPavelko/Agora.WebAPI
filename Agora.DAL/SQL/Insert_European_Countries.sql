@@ -1,4 +1,4 @@
-USE Agora;
+USE agora;
 
 INSERT INTO Countries (Name) VALUES
 ('Albania'),

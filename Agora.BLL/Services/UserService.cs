@@ -152,5 +152,29 @@ namespace Agora.BLL.Services
             await Database.Save();
         }
 
+        public async Task<bool> CreateGoogle(UserDTO userDTO)
+        {
+            try
+            {
+                var user = new User
+                {
+                    Name = userDTO.Name,
+                    Surname = userDTO.Surname,
+                    PhoneNumber = userDTO.PhoneNumber,
+                    Email = userDTO.Email,
+                    Password = userDTO.Password,
+                    GoogleId = userDTO.GoogleId
+                };
+
+                await Database.Users.Create(user);
+                await Database.Save();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
