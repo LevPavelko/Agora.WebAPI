@@ -9,7 +9,9 @@ namespace Agora.DAL.Entities
         public DateOnly CreatedAt { get; set; }
         public DateOnly? UpdatedAt { get; set; }
 
+        public int? SellerId { get; set; }
         public virtual Seller? Seller { get; set; }
+
         public virtual ICollection<Product>? Products { get; set; }
     }
 }

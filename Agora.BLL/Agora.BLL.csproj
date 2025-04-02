@@ -7,10 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\" />
-    <Folder Include="Infrastructure\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Services\" />
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.14">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agora.DAL\Agora.DAL.csproj" />
+    <ProjectReference Include="..\Agora.Enums\Agora.Enums.csproj" />
   </ItemGroup>
 
 </Project>
