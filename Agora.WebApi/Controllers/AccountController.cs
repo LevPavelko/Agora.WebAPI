@@ -32,8 +32,7 @@ namespace Agora.Controllers
         private readonly IConfiguration _config;
 
         public AccountController(IUserService userService, ISellerService sellerService, IStoreService storeService, IAddressService addressService, 
-            ICountryService countryService, IJWTService JWTService, ICustomerService customerService)
-            ICountryService countryService, IJWTService JWTService, IConfiguration config)
+            ICountryService countryService, IJWTService JWTService, ICustomerService customerService, IConfiguration config)
 
         {
             _userService = userService;
@@ -90,6 +89,16 @@ namespace Agora.Controllers
                 await _addressService.Create(addressDTO);
 
                 var seller = await _sellerService.Get(sellerId);
+                var role = await _userService.GetRoleByUserId(userDTO.Id);
+                string jwtToken = _JWTService.GenerateJwtToken(userDTO, role);
+                Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
+                {
+                    HttpOnly = true,
+                    Secure = true, //  Если HTTPS то true
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddMinutes(30)
+                });
+
 
                 return CreatedAtAction(nameof(RegisterSeller), new { id = seller.Id }, seller);
             }
@@ -119,7 +128,16 @@ namespace Agora.Controllers
 
                 var user = await _userService.Get(userId);
 
-                string jwtToken = _JWTService.GenerateJwtToken(user);
+                var role = await _userService.GetRoleByUserId(user.Id);
+                string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
+                {
+                    HttpOnly = true,
+                    Secure = true, //  Если HTTPS то true
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddMinutes(30)
+                });
+
 
                 bool customerCreated = await _customerService.CreateForUser(userId);
                 if (!customerCreated)
@@ -174,7 +192,16 @@ namespace Agora.Controllers
 
                 if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
                 {
-                    string jwtToken = _JWTService.GenerateJwtToken(user);
+                    var role = await _userService.GetRoleByUserId(user.Id);
+                    string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                    Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
+                    {
+                        HttpOnly = true,
+                        Secure = true, //  Если HTTPS то true
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddMinutes(30)
+                    });
+
                     return Ok(new { jwtToken });
                 }
                 else
@@ -194,7 +221,16 @@ namespace Agora.Controllers
                 bool result = await _userService.CreateGoogle(newUser);
                 if (result)
                 {
-                    string jwtToken = _JWTService.GenerateJwtToken(newUser);
+                    var role = await _userService.GetRoleByUserId(user.Id);
+                    string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                    Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
+                    {
+                        HttpOnly = true,
+                        Secure = true, //  Если HTTPS то true
+                        SameSite = SameSiteMode.None,
+                        Expires = DateTime.UtcNow.AddMinutes(30)
+                    });
+
                     return Ok(new { jwtToken });
                 }
                 else
@@ -202,20 +238,7 @@ namespace Agora.Controllers
                     return new JsonResult(new { message = "Error occurred during registration." }) { StatusCode = 500 };
                 }
             }
-            //Console.WriteLine($"Received request: Email={model.Email}, GoogleId={model.GoogleId}");
-            UserDTO user = await _userService.GetByEmail(model.Email);
-            if (user != null && user.GoogleId == "")
-            {
-                return new JsonResult(new { message = "You already have account!" }) { StatusCode = 400 };
-            }
-            if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
-            {
-                var role = await _userService.GetRoleByUserId(user.Id);
-                string jwtToken = _JWTService.GenerateJwtToken(user, role);
-                return Ok(new { jwtToken });
-            }
-            //return new JsonResult(new { message = "Error" }) { StatusCode = 400 };
-            return Unauthorized();
+           
         }
 
         [HttpPost("login")]
