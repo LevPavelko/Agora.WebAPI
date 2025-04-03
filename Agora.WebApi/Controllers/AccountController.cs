@@ -60,6 +60,7 @@ namespace Agora.Controllers
                 userDTO.Email = regSeller.Email;
 
                 var userId = await _userService.CreateReturnId(userDTO);
+                userDTO.Id = userId;
 
                 SellerDTO sellerDTO = new SellerDTO();
                 sellerDTO.UserId = userId; 
