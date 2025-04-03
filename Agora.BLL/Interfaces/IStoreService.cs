@@ -9,7 +9,7 @@ namespace Agora.BLL.Interfaces
 {
     public interface IStoreService
     {
-        Task<IQueryable<StoreDTO>> GetAll();
+        Task<IEnumerable<StoreDTO>> GetAll();
         Task<StoreDTO> Get(int id);
         Task Create(StoreDTO storeDTO);
         Task Update(StoreDTO storeDTO);
