@@ -98,7 +98,7 @@ namespace Agora
             app.UseAuthentication();  // Сначала Authentication
             app.UseAuthorization();   // Потом Authorization
             //app.UseMiddleware<JwtValidationMiddleware>();
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseRouting();
             app.UseSession();
     
