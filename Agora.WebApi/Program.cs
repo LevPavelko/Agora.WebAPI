@@ -51,7 +51,7 @@ namespace Agora
             builder.Services.AddTransient<ISubcategoryService, SubcategoryService>();
             builder.Services.AddTransient<ISupportService, SupportService>();
             builder.Services.AddTransient<IWishlistService, WishlistService>();
-            builder.Services.AddTransient<IJWTService, JWTService>();
+            builder.Services.AddTransient<ISecureService, SecureService>();
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 

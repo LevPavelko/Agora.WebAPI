@@ -14,12 +14,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Agora.BLL.Services;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Agora.Controllers
 {
     [ApiController]
     [Route("api/account")]
-    
+
     public class AccountController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -27,12 +29,12 @@ namespace Agora.Controllers
         private readonly IStoreService _storeService;
         private readonly IAddressService _addressService;
         private readonly ICountryService _countryService;
-        private readonly IJWTService _JWTService;
+        private readonly ISecureService _secureService;
         private readonly ICustomerService _customerService;
         private readonly IConfiguration _config;
 
-        public AccountController(IUserService userService, ISellerService sellerService, IStoreService storeService, IAddressService addressService, 
-            ICountryService countryService, IJWTService JWTService, ICustomerService customerService, IConfiguration config)
+        public AccountController(IUserService userService, ISellerService sellerService, IStoreService storeService, IAddressService addressService,
+            ICountryService countryService, ISecureService secureService, ICustomerService customerService, IConfiguration config)
 
         {
             _userService = userService;
@@ -40,16 +42,16 @@ namespace Agora.Controllers
             _storeService = storeService;
             _addressService = addressService;
             _countryService = countryService;
-            _JWTService = JWTService;
+            _secureService = secureService;
             _customerService = customerService;
             _config = config;
         }
 
         [HttpPost("register-seller")]
         public async Task<IActionResult> RegisterSeller(RegSellerViewModel regSeller)
-        {             
+        {
             try
-            {                
+            {
                 string hashedPassword = HashPassword(regSeller.Password);
 
                 UserDTO userDTO = new UserDTO();
@@ -63,23 +65,23 @@ namespace Agora.Controllers
                 userDTO.Id = userId;
 
                 SellerDTO sellerDTO = new SellerDTO();
-                sellerDTO.UserId = userId; 
+                sellerDTO.UserId = userId;
 
                 int sellerId = await _sellerService.Create(sellerDTO);
-                
+
                 StoreDTO storeDTO = new StoreDTO();
                 storeDTO.Name = regSeller.StoreName;
                 storeDTO.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
                 storeDTO.SellerId = sellerId;
-                
+
                 await _storeService.Create(storeDTO);
-                
+
                 var country = await _countryService.Get(regSeller.CountryId);
 
                 if (country == null) return BadRequest("Invalid country ID.");
 
                 AddressDTO addressDTO = new AddressDTO();
-                
+
                 addressDTO.Appartement = regSeller.Appartement;
                 addressDTO.Building = regSeller.Building;
                 addressDTO.Street = regSeller.Street;
@@ -91,7 +93,7 @@ namespace Agora.Controllers
 
                 var seller = await _sellerService.Get(sellerId);
                 var role = await _userService.GetRoleByUserId(userDTO.Id);
-                string jwtToken = _JWTService.GenerateJwtToken(userDTO, role);
+                string jwtToken = _secureService.GenerateJwtToken(userDTO, role);
                 Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
                 {
                     HttpOnly = true,
@@ -99,7 +101,7 @@ namespace Agora.Controllers
                     SameSite = SameSiteMode.None,
                     Expires = DateTime.UtcNow.AddMinutes(30)
                 });
-
+                CreateSessions(userDTO.Id, role.Id, role.Role);
 
                 return CreatedAtAction(nameof(RegisterSeller), new { id = seller.Id }, seller);
             }
@@ -130,7 +132,7 @@ namespace Agora.Controllers
                 var user = await _userService.Get(userId);
 
                 var role = await _userService.GetRoleByUserId(user.Id);
-                string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                string jwtToken = _secureService.GenerateJwtToken(user, role);
                 Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
                 {
                     HttpOnly = true,
@@ -145,7 +147,7 @@ namespace Agora.Controllers
                 {
                     return StatusCode(500, "Error occurred while creating customer record.");
                 }
-
+                CreateSessions(user.Id, role.Id, role.Role);
                 return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, new { user, jwtToken });
             }
             catch (Exception ex)
@@ -194,7 +196,7 @@ namespace Agora.Controllers
                 if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
                 {
                     var role = await _userService.GetRoleByUserId(user.Id);
-                    string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                    string jwtToken = _secureService.GenerateJwtToken(user, role);
                     Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
                     {
                         HttpOnly = true,
@@ -202,7 +204,7 @@ namespace Agora.Controllers
                         SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddMinutes(30)
                     });
-
+                    CreateSessions(user.Id, role.Id, role.Role);
                     return Ok(new { jwtToken });
                 }
                 else
@@ -223,7 +225,7 @@ namespace Agora.Controllers
                 if (result)
                 {
                     var role = await _userService.GetRoleByUserId(user.Id);
-                    string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                    string jwtToken = _secureService.GenerateJwtToken(user, role);
                     Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
                     {
                         HttpOnly = true,
@@ -231,6 +233,7 @@ namespace Agora.Controllers
                         SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddMinutes(30)
                     });
+                    CreateSessions(user.Id, role.Id, role.Role);
 
                     return Ok(new { jwtToken });
                 }
@@ -239,7 +242,7 @@ namespace Agora.Controllers
                     return new JsonResult(new { message = "Error occurred during registration." }) { StatusCode = 500 };
                 }
             }
-           
+
         }
 
         [HttpPost("login")]
@@ -254,7 +257,7 @@ namespace Agora.Controllers
                 if (user.Email.Equals(model.Email) && user.Password.Equals(hashedPass))
                 {
                     var role = await _userService.GetRoleByUserId(user.Id);
-                    string jwtToken = _JWTService.GenerateJwtToken(user, role);
+                    string jwtToken = _secureService.GenerateJwtToken(user, role);
                     Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
                     {
                         HttpOnly = true,
@@ -263,7 +266,9 @@ namespace Agora.Controllers
                         Expires = DateTime.UtcNow.AddMinutes(30)
                     });
 
-                    return Ok(new { message = "Authenticated" });
+                    CreateSessions(user.Id, role.Id, role.Role);
+
+                    return Ok(new { message = "Authenticated"});
                 }
                 else
                 {
@@ -271,7 +276,7 @@ namespace Agora.Controllers
                 }
 
             }
-            catch (ValidationExceptionFromService ex) 
+            catch (ValidationExceptionFromService ex)
             {
                 return new JsonResult(new { message = "You have to sing up first!" }) { StatusCode = 401 };
             }
@@ -284,7 +289,7 @@ namespace Agora.Controllers
 
         }
 
-        [HttpGet("get-user-role")]  
+        [HttpGet("get-user-role")]
         public IActionResult GetUserRole()
         {
             var authHeader = HttpContext.Request.Headers["JWT"].FirstOrDefault();
@@ -303,13 +308,42 @@ namespace Agora.Controllers
 
             try
             {
-                var roleDTO = _JWTService.DecryptJwtToken(token);
+                var roleDTO = _secureService.DecryptJwtToken(token);
                 return Ok(new { Role = roleDTO.Role });
             }
             catch (SecurityTokenException)
             {
                 return Unauthorized("Invalid token.");
             }
+        }
+
+        public void CreateSessions(int userId, int id, string role)
+        {
+            var encryptedUserId = _secureService.EncryptSessionInt(userId);
+            var encryptedId = _secureService.EncryptSessionInt(id);
+            var encryptedRole = _secureService.EncryptSessionString(role);
+            Response.Cookies.Append("userId", encryptedUserId, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, //  Если HTTPS то true
+                SameSite = SameSiteMode.None
+            });
+
+            Response.Cookies.Append("id", encryptedId, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, //  Если HTTPS то true
+                SameSite = SameSiteMode.None
+            });
+
+            Response.Cookies.Append("role", encryptedRole, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, //  Если HTTPS то true
+                SameSite = SameSiteMode.None
+            });
+
+
         }
     }
 }

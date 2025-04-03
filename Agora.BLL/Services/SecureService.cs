@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Agora.BLL.Services
 {
-    public class JWTService: IJWTService
+    public class SecureService : ISecureService
     {
         private readonly IConfiguration _config;
-        public JWTService(IConfiguration config)
+        public SecureService(IConfiguration config)
         {
             _config = config;
         }
@@ -25,9 +27,9 @@ namespace Agora.BLL.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userDTO.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, roleDTO.Id.ToString()), 
-                new Claim(ClaimTypes.Role, roleDTO.Role), 
-                new Claim(ClaimTypes.UserData, userDTO.Id.ToString()) 
+                new Claim(ClaimTypes.NameIdentifier, roleDTO.Id.ToString()),
+                new Claim(ClaimTypes.Role, roleDTO.Role),
+                new Claim(ClaimTypes.UserData, userDTO.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -79,6 +81,68 @@ namespace Agora.BLL.Services
 
         }
 
+        public string EncryptSessionInt(int plainText)
+        {
+            var key = _config["Session:Secret"];
+            using (Aes aesAlg = Aes.Create())
+            {
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    aesAlg.Key = sha256.ComputeHash(Encoding.UTF8.GetBytes(key));
+                }
+
+                aesAlg.IV = new byte[16];
+
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter sw = new StreamWriter(cs))
+                        {
+                            sw.Write(plainText);
+                        }
+                    }
+
+                    return Convert.ToBase64String(ms.ToArray());
+                }
+            }
+        }
+
+        public string EncryptSessionString(string plainText)
+        {
+            var key = _config["Session:Secret"];
+            using (Aes aesAlg = Aes.Create())
+            {
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    aesAlg.Key = sha256.ComputeHash(Encoding.UTF8.GetBytes(key));
+                }
+
+                aesAlg.IV = new byte[16];
+
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter sw = new StreamWriter(cs))
+                        {
+                            sw.Write(plainText);
+                        }
+                    }
+
+                    return Convert.ToBase64String(ms.ToArray());
+                }
+            }
+        }
+
+
 
     }
+
+
 }
+

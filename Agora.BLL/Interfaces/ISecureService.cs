@@ -7,9 +7,14 @@ using Agora.BLL.DTO;
 
 namespace Agora.BLL.Interfaces
 {
-    public interface IJWTService
+    public interface ISecureService
     {
         string GenerateJwtToken(UserDTO userDTO, RoleDTO roleDTO);
-       RoleDTO DecryptJwtToken(string token);
+        RoleDTO DecryptJwtToken(string token);
+
+        string EncryptSessionInt(int data);
+        string EncryptSessionString(string data);
+        
+
     }
 }
