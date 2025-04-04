@@ -92,8 +92,9 @@ namespace Agora
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
-                app.MapScalarApiReference();
+                app.MapScalarApiReference();  // Scalar UI will be available at: http://localhost:5193/scalar/v1
             }
+
             app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();  // Сначала Authentication
             app.UseAuthorization();   // Потом Authorization

@@ -28,12 +28,17 @@ namespace Agora.BLL.Services
             return _mapper.Map<IQueryable<ProductDTO>>(products.ToList());
 
         }
-        public async Task<IEnumerable<ProductDTO>> GetFilteredByName(string filter) //????
+        public async Task<IEnumerable<ProductDTO>> GetFilteredByName(string filter)
         {
-            
-            var filteredProducts = await Database.Products.Find(p => p.Name.Contains(filter));
+            var filteredProducts = await Database.Products.Find(p =>
+                           p.Name.Contains(filter) ||
+                           p.Category.Name.Contains(filter) ||
+                           p.Subcategory.Name.Contains(filter) ||
+                           p.Brand.Name.Contains(filter));
+
             return _mapper.Map<IEnumerable<ProductDTO>>(filteredProducts);
         }
+
         public async Task<ProductDTO> Get(int id)
         {
             var product = await Database.Products.Get(id);
