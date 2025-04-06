@@ -6,7 +6,7 @@ namespace Agora.DAL.Entities
     {
         public int Id { get; set; }
         public decimal TotalPrice { get; set; }
-        public OrderStatus Status { get; set; } 
+      
         public DateOnly PaymentDeadline { get; set; }
        
         public virtual Customer? Customer { get; set; }

@@ -42,6 +42,7 @@ namespace Agora.DAL.Repository
         private SupportRepository supportRepository;
         private UserRepository userRepository;
         private WishlistRepository wishlistRepository;
+        private StatisticsRepository statisticsRepository;
 
         public EFUnitOfWork(AgoraContext context)
         {
@@ -309,6 +310,16 @@ namespace Agora.DAL.Repository
                 return wishlistRepository;
             }
         }
+        public IStatisticsRepository Statistics
+        {
+            get
+            {
+                if (statisticsRepository == null)
+                    statisticsRepository = new StatisticsRepository(db);
+                return statisticsRepository;
+            }
+        }
+
         public async Task Save()
         {
             await db.SaveChangesAsync();

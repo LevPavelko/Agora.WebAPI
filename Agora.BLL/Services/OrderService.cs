@@ -43,7 +43,6 @@ namespace Agora.BLL.Services
             {
                 Id = order.Id,
                 TotalPrice = order.TotalPrice,
-                Status = order.Status,
                 PaymentDeadline = order.PaymentDeadline
               
             };
@@ -54,7 +53,6 @@ namespace Agora.BLL.Services
             var order = new Order
             {
                 TotalPrice = orderDTO.TotalPrice,
-                Status = orderDTO.Status,
                 PaymentDeadline = orderDTO.PaymentDeadline
 
             };
@@ -67,7 +65,7 @@ namespace Agora.BLL.Services
             {
                 Id = orderDTO.Id,
                 TotalPrice = orderDTO.TotalPrice,
-                Status = orderDTO.Status,
+                
                 PaymentDeadline = orderDTO.PaymentDeadline
 
             };

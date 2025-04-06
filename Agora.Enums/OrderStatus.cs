@@ -1,4 +1,6 @@
 ﻿
+using System.Reflection;
+
 namespace Agora.Enums
 {
     public enum OrderStatus
@@ -11,4 +13,5 @@ namespace Agora.Enums
         Refunded,       // Возвращен
         Completed       // Завершен
     }
+
 }

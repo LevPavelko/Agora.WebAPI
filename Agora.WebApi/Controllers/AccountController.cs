@@ -317,6 +317,7 @@ namespace Agora.Controllers
             }
         }
 
+        [NonAction]
         public void CreateSessions(int userId, int id, string role)
         {
             var encryptedUserId = _secureService.EncryptSessionInt(userId);

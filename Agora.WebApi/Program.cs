@@ -52,6 +52,7 @@ namespace Agora
             builder.Services.AddTransient<ISupportService, SupportService>();
             builder.Services.AddTransient<IWishlistService, WishlistService>();
             builder.Services.AddTransient<ISecureService, SecureService>();
+            builder.Services.AddTransient<IStatisticsService, StatisticsService>();
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -85,6 +86,7 @@ namespace Agora
                           .AllowCredentials();
                 });
             });
+            
 
 
             var app = builder.Build();
@@ -96,8 +98,8 @@ namespace Agora
             }
 
             app.UseCors("AllowSpecificOrigin");
-            app.UseAuthentication();  // Сначала Authentication
-            app.UseAuthorization();   // Потом Authorization
+            app.UseAuthentication();  
+            app.UseAuthorization(); 
             //app.UseMiddleware<JwtValidationMiddleware>();
             //app.UseHttpsRedirection();
             app.UseRouting();
@@ -111,7 +113,11 @@ namespace Agora
 
             app.MapControllers();
 
+            
             app.Run();
+            
+
+
 
         }
     }

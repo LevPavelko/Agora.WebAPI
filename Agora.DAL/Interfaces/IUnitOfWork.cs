@@ -38,6 +38,7 @@ namespace Agora.DAL.Interfaces
         IRepository<Support> Supports { get; }
         IUserRepository Users { get; }
         IRepository<Wishlist> Wishlists { get; }
+        IStatisticsRepository Statistics { get; }
         Task Save();
     }
 }
