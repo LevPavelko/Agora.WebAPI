@@ -365,6 +365,6 @@ FodyWeavers.xsd
 
 
 
-/Agora.DAL/Migrations
+/Agora.DAL/Migrations/
 /Agora.DAL/Migrations/20250331105458_InitMySql.Designer.cs
 /Agora.DAL/Migrations/AgoraContextModelSnapshot.cs
