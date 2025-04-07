@@ -1,6 +1,5 @@
 ﻿using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agora.Controllers
@@ -23,6 +22,22 @@ namespace Agora.Controllers
         {
             List<WeeklyStatisticsDTO> categories = await _statisticsService.GetWeeksStatisticsBySales(storeId);
             return Ok(categories);
+        }
+
+        
+        [HttpGet("revenue/current-month/{storeId}")]
+        public async Task<ActionResult<List<DailyRevenueDTO>>> GetCurrentMonthRevenue(int storeId)
+        {
+            var result = await _statisticsService.GetCurrentMonthRevenue(storeId);
+            return Ok(result);
+        }
+
+        
+        [HttpGet("revenue/previous-month/{storeId}")]
+        public async Task<ActionResult<List<DailyRevenueDTO>>> GetPreviousMonthRevenue(int storeId)
+        {
+            var result = await _statisticsService.GetPreviousMonthRevenue(storeId);
+            return Ok(result);
         }
     }
 }

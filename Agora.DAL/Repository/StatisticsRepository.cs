@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Agora.DAL.EF;
-using Agora.DAL.Entities;
+﻿using Agora.DAL.EF;
 using Agora.DAL.Interfaces;
 
 namespace Agora.DAL.Repository
@@ -36,6 +30,42 @@ namespace Agora.DAL.Repository
             
             return Task.FromResult(query.Cast<object>());
         }
+        public Task<IQueryable<object>> GetCurrentMonthRevenue(int storeId)
+        {
+            var now = DateOnly.FromDateTime(DateTime.Now);
+            var firstDayOfMonth = new DateOnly(now.Year, now.Month, 1);
 
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.Id == storeId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Where(o => o.Date >= firstDayOfMonth)
+                .Select(o => new
+                {
+                    o.Date,
+                    Revenue = o.PriceAtMoment * o.Quantity
+                });
+
+            return Task.FromResult(query.Cast<object>());
+        }
+
+        public Task<IQueryable<object>> GetPreviousMonthRevenue(int storeId)
+        {
+            var now = DateTime.Now;
+            var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
+            var firstDayOfPreviousMonth = firstDayOfThisMonth.AddMonths(-1);
+            var lastDayOfPreviousMonth = firstDayOfThisMonth.AddDays(-1);
+
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.Id == storeId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Where(o => o.Date >= firstDayOfPreviousMonth && o.Date <= lastDayOfPreviousMonth)
+                .Select(o => new
+                {
+                    o.Date,
+                    Revenue = o.PriceAtMoment * o.Quantity
+                });
+
+            return Task.FromResult(query.Cast<object>());
+        }
     }
 }

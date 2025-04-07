@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Agora.BLL.DTO;
+﻿using Agora.BLL.DTO;
 
 namespace Agora.BLL.Interfaces
 {
     public interface IStatisticsService
     {
         Task<List<WeeklyStatisticsDTO>> GetWeeksStatisticsBySales(int storeId);
+        Task<List<DailyRevenueDTO>> GetPreviousMonthRevenue(int storeId);
+        Task<List<DailyRevenueDTO>> GetCurrentMonthRevenue(int storeId);
+
     }
 }

@@ -10,5 +10,8 @@ namespace Agora.DAL.Interfaces
     public interface IStatisticsRepository
     {
         Task<IQueryable<object>> GetWeeksStatisticsBySales(int storeId);
+        Task<IQueryable<object>> GetCurrentMonthRevenue(int storeId);
+        Task<IQueryable<object>> GetPreviousMonthRevenue(int storeId);
+
     }
 }

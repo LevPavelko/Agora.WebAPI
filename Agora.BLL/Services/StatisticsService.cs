@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-using Agora.BLL.DTO;
+﻿using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
 using Agora.DAL.Interfaces;
 using AutoMapper;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Agora.BLL.Services
 {
@@ -64,6 +56,52 @@ namespace Agora.BLL.Services
             return groupedByDate;
         }
 
+        public async Task<List<DailyRevenueDTO>> GetCurrentMonthRevenue(int storeId)
+        {
+            IQueryable<object> objects = await Database.Statistics.GetCurrentMonthRevenue(storeId);
+            return GetStatisticsWithSummedRevenues(objects);
+        }
 
+        public async Task<List<DailyRevenueDTO>> GetPreviousMonthRevenue(int storeId)
+        {
+            IQueryable<object> objects = await Database.Statistics.GetPreviousMonthRevenue(storeId);
+            return GetStatisticsWithSummedRevenues(objects);
+        }
+
+        private List<DailyRevenueDTO> GetStatisticsWithSummedRevenues(IQueryable<object> objects)
+        {
+            var revenueList = new List<DailyRevenueDTO>();
+
+            foreach (var item in objects)
+            {
+                var dateProperty = item.GetType().GetProperty("Date");
+                var revenueProperty = item.GetType().GetProperty("Revenue");
+
+                if (dateProperty != null && revenueProperty != null)
+                {
+                    var dto = new DailyRevenueDTO
+                    {
+                        Date = (DateOnly)dateProperty.GetValue(item),
+                        Revenue = (decimal)revenueProperty.GetValue(item),
+                    };
+                    dto.DayOfWeek = dto.Date.DayOfWeek.ToString();
+
+                    revenueList.Add(dto);
+                }
+            }
+
+            var grouped = revenueList
+                .GroupBy(r => r.Date)
+                .Select(g => new DailyRevenueDTO
+                {
+                    Date = g.Key,
+                    DayOfWeek = g.Key.DayOfWeek.ToString(),
+                    Revenue = g.Sum(x => x.Revenue)
+                })
+                .OrderBy(r => r.Date)
+                .ToList();
+
+            return grouped;
+        }
     }
 }
