@@ -40,6 +40,31 @@ namespace Agora.BLL.Services
             return statisticsWithSummedQuantity;
         }
 
+        public async Task<List<WeeklyStatisticsDTO>> GetWeeksStatisticsBySalesGeneral(int sellerId)
+        {
+            IQueryable<object> objects = await Database.Statistics.GetWeeksStatisticsBySalesGeneral(sellerId);
+            List<WeeklyStatisticsDTO> list = new List<WeeklyStatisticsDTO>();
+
+            foreach (var item in objects)
+            {
+                WeeklyStatisticsDTO dto = new WeeklyStatisticsDTO();
+                var dateProperty = item.GetType().GetProperty("Date");
+                var quantityProperty = item.GetType().GetProperty("Quantity");
+
+                if (dateProperty != null && quantityProperty != null)
+                {
+                    dto.Date = (DateOnly)dateProperty.GetValue(item);
+                    dto.QuantityOfSales = (int)quantityProperty.GetValue(item);
+                }
+
+                list.Add(dto);
+            }
+
+
+            var statisticsWithSummedQuantity = GetStatisticsWithSummedQuantity(list);
+
+            return statisticsWithSummedQuantity;
+        }
         public List<WeeklyStatisticsDTO> GetStatisticsWithSummedQuantity(List<WeeklyStatisticsDTO> statistics)
         {
             var groupedByDate = statistics

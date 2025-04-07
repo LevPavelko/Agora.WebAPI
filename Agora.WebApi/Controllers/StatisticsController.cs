@@ -17,14 +17,21 @@ namespace Agora.Controllers
             _statisticsService = statisticsService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GetWeeklyStatistics([FromBody] int storeId)
+        [HttpGet("weekly-by-sales/{storeId}")]
+        public async Task<IActionResult> GetWeeklyStatistics( int storeId)
         {
             List<WeeklyStatisticsDTO> categories = await _statisticsService.GetWeeksStatisticsBySales(storeId);
             return Ok(categories);
         }
 
-        
+        [HttpGet("weekly-by-sales-general/{sellerId}")]
+        public async Task<IActionResult> GetWeeklyGeneralStatistics( int sellerId)
+        {
+            List<WeeklyStatisticsDTO> categories = await _statisticsService.GetWeeksStatisticsBySalesGeneral(sellerId);
+            return Ok(categories);
+        }
+
+
         [HttpGet("revenue/current-month/{storeId}")]
         public async Task<ActionResult<List<DailyRevenueDTO>>> GetCurrentMonthRevenue(int storeId)
         {

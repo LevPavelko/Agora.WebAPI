@@ -30,6 +30,26 @@ namespace Agora.DAL.Repository
             
             return Task.FromResult(query.Cast<object>());
         }
+
+        public Task<IQueryable<object>> GetWeeksStatisticsBySalesGeneral(int sellerId)
+        {
+            var dateNow = DateOnly.FromDateTime(DateTime.Now);
+
+            var weekAgo = dateNow.AddDays(-7);
+
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.SellerId == sellerId )
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Where(o => o.Date >= weekAgo)
+                .Select(o => new
+                {
+                    o.Date,
+                    o.Quantity
+
+                });
+
+            return Task.FromResult(query.Cast<object>());
+        }
         public Task<IQueryable<object>> GetCurrentMonthRevenue(int storeId)
         {
             var now = DateOnly.FromDateTime(DateTime.Now);
