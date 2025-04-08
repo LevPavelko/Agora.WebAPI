@@ -1,5 +1,6 @@
 ﻿using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
+using AutoMapper.Configuration.Annotations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agora.Controllers
@@ -45,6 +46,13 @@ namespace Agora.Controllers
         {
             var result = await _statisticsService.GetPreviousMonthRevenue(storeId);
             return Ok(result);
+        }
+
+        [HttpGet("info-abt-store/{sellerId}")]
+        public async Task<ActionResult<List<GeneralInfoAbtStoreDTO>>> GetInfoAbtStores(int sellerId)
+        {
+            List<GeneralInfoAbtStoreDTO> list = await _statisticsService.GetGeneralIngoAbtStore(sellerId);
+            return list;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Agora.DAL.EF;
+using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 
 namespace Agora.DAL.Repository
@@ -85,6 +86,21 @@ namespace Agora.DAL.Repository
                     Revenue = o.PriceAtMoment * o.Quantity
                 });
 
+            return Task.FromResult(query.Cast<object>());
+        }
+
+        public Task<IQueryable<object>> GetGeneralInfoAbtStore(int sellerId)
+        {
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.SellerId == sellerId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Select(o => new
+                {
+                    o.PriceAtMoment,
+                    o.Product.Store.Name
+
+                });
+           
             return Task.FromResult(query.Cast<object>());
         }
     }

@@ -1,4 +1,6 @@
-﻿using Agora.BLL.DTO;
+﻿using System.Globalization;
+using System.Runtime.Serialization;
+using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
 using Agora.DAL.Interfaces;
 using AutoMapper;
@@ -18,7 +20,7 @@ namespace Agora.BLL.Services
         {
             IQueryable<object> objects = await Database.Statistics.GetWeeksStatisticsBySales(storeId);
             List<WeeklyStatisticsDTO> list = new List<WeeklyStatisticsDTO>();
-            
+
             foreach (var item in objects)
             {
                 WeeklyStatisticsDTO dto = new WeeklyStatisticsDTO();
@@ -33,10 +35,10 @@ namespace Agora.BLL.Services
 
                 list.Add(dto);
             }
-            
-           
+
+
             var statisticsWithSummedQuantity = GetStatisticsWithSummedQuantity(list);
-           
+
             return statisticsWithSummedQuantity;
         }
 
@@ -68,12 +70,12 @@ namespace Agora.BLL.Services
         public List<WeeklyStatisticsDTO> GetStatisticsWithSummedQuantity(List<WeeklyStatisticsDTO> statistics)
         {
             var groupedByDate = statistics
-                .GroupBy(s => s.Date)  
+                .GroupBy(s => s.Date)
                 .Where(group => group.Count() >= 1)
                 .Select(group => new WeeklyStatisticsDTO
                 {
                     Date = group.Key,
-                    DayOfWeek = group.Key.DayOfWeek.ToString(),
+                    DayOfWeek = group.Key.ToString("ddd", new CultureInfo("en-EN")),
                     QuantityOfSales = group.Sum(s => s.QuantityOfSales)
                 })
                 .ToList();
@@ -128,5 +130,48 @@ namespace Agora.BLL.Services
 
             return grouped;
         }
+
+        public async Task<List<GeneralInfoAbtStoreDTO>> GetGeneralIngoAbtStore(int sellerId)
+        {
+            IQueryable<object> objects = await Database.Statistics.GetGeneralInfoAbtStore(sellerId);
+            Dictionary<string, decimal> storePriceMap = new Dictionary<string, decimal>();
+            Dictionary<string, int> storeOrdersMap = new Dictionary<string, int>();
+
+            foreach (var item in objects)
+            {
+                var storeProp = item.GetType().GetProperty("Name");
+                var storeName = storeProp?.GetValue(item)?.ToString();
+
+                var priceProp = item.GetType().GetProperty("PriceAtMoment");
+                var priceObj = priceProp?.GetValue(item);
+                decimal price = priceObj != null ? Convert.ToDecimal(priceObj) : 0;
+
+                if (!string.IsNullOrEmpty(storeName))
+                {
+                    if (storePriceMap.ContainsKey(storeName))
+                        storePriceMap[storeName] += price;
+                    else
+                        storePriceMap[storeName] = price;
+
+                    if (storeOrdersMap.ContainsKey(storeName))
+                        storeOrdersMap[storeName] += 1;
+                    else
+                        storeOrdersMap[storeName] = 1;
+                }
+            }
+
+            var list = storePriceMap
+                .Select(kvp => new GeneralInfoAbtStoreDTO
+                {
+                    StoreName = kvp.Key,
+                    TotalRevenue = kvp.Value,
+                    TotalOrders = storeOrdersMap.ContainsKey(kvp.Key) ? storeOrdersMap[kvp.Key] : 0
+                })
+                .ToList();
+
+            return list;
+        }
+
+
     }
 }
