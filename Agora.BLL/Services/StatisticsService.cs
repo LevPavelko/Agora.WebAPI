@@ -56,9 +56,9 @@ namespace Agora.BLL.Services
             return groupedByDate;
         }
 
-        public async Task<List<DailyRevenueDTO>> GetCurrentMonthRevenue(int storeId)
+        public async Task<List<DailyRevenueDTO>> GetPrePreviousMonthRevenue(int storeId)
         {
-            IQueryable<object> objects = await Database.Statistics.GetCurrentMonthRevenue(storeId);
+            IQueryable<object> objects = await Database.Statistics.GetPrePreviousMonthRevenue(storeId);
             return GetStatisticsWithSummedRevenues(objects);
         }
 
