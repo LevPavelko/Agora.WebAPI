@@ -46,6 +46,12 @@ namespace Agora.BLL.Services
 
             };
         }
+
+        public async Task<bool> CheckEmailExists(string email)
+        {
+            var user = await Database.Users.GetByEmail(email);
+            return user != null;
+        }
         public async Task<UserDTO> GetByEmail(string email)
         {
             var user = await Database.Users.GetByEmail(email);

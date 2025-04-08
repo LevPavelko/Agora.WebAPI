@@ -25,7 +25,7 @@ namespace Agora.DAL.Repository
         }
         public async Task<User> GetByEmail(string email)
         {
-            var user = await db.Users.FirstOrDefaultAsync(a => a.Email == email);
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
             return user;
         }
   

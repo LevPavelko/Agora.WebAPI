@@ -12,6 +12,7 @@ namespace Agora.BLL.Interfaces
     {
         Task<IQueryable<UserDTO>> GetAll();
         Task<UserDTO> Get(int id);
+        Task<bool> CheckEmailExists(string email);
         Task<int> CreateReturnId(UserDTO userDTO);
         Task<UserDTO> GetByEmail(string email);
         Task<RoleDTO> GetRoleByUserId(int id);
