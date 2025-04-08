@@ -1,7 +1,8 @@
 ﻿using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
-using AutoMapper.Configuration.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
+using System.Text.Json;
 
 namespace Agora.Controllers
 {
@@ -9,50 +10,54 @@ namespace Agora.Controllers
     [ApiController]
     public class StatisticsController : ControllerBase
     {
-        private readonly IStatisticsService _statisticsService;
+        private readonly IConnectionMultiplexer _redis;
 
-
-        public StatisticsController(IStatisticsService statisticsService)
-
+        public StatisticsController(IConnectionMultiplexer redis)
         {
-            _statisticsService = statisticsService;
+            _redis = redis;
         }
 
-        [HttpGet("weekly-by-sales/{storeId}")]
-        public async Task<IActionResult> GetWeeklyStatistics( int storeId)
+        [HttpGet("weekly/{storeId}")]
+        public async Task<IActionResult> GetWeekly(int storeId)
         {
-            List<WeeklyStatisticsDTO> categories = await _statisticsService.GetWeeksStatisticsBySales(storeId);
-            return Ok(categories);
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"weekly_stats:{storeId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Statistics was not found or has not yet been calculated.");
+
+            var data = JsonSerializer.Deserialize<List<WeeklyStatisticsDTO>>(json);
+            return Ok(data);
         }
 
-        [HttpGet("weekly-by-sales-general/{sellerId}")]
-        public async Task<IActionResult> GetWeeklyGeneralStatistics( int sellerId)
+        [HttpGet("revenue/monthly/previous/{storeId}")]
+        public async Task<IActionResult> GetPreviousMonthRevenue(int storeId)
         {
-            List<WeeklyStatisticsDTO> categories = await _statisticsService.GetWeeksStatisticsBySalesGeneral(sellerId);
-            return Ok(categories);
+            var db = _redis.GetDatabase();
+            var date = DateTime.Now.AddMonths(-1);
+            var key = $"monthly_revenue:{date.Year}-{date.Month:D2}:{storeId}";
+
+            var json = await db.StringGetAsync(key);
+            if (json.IsNullOrEmpty)
+                return NotFound("Revenue data for the previous month was not found or has not yet been calculated.");
+
+            var data = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(json);
+            return Ok(data);
         }
 
-
-        [HttpGet("revenue/current-month/{storeId}")]
-        public async Task<ActionResult<List<DailyRevenueDTO>>> GetCurrentMonthRevenue(int storeId)
+        [HttpGet("revenue/monthly/before-previous/{storeId}")]
+        public async Task<IActionResult> GetBeforePreviousMonthRevenue(int storeId)
         {
-            var result = await _statisticsService.GetCurrentMonthRevenue(storeId);
-            return Ok(result);
-        }
+            var db = _redis.GetDatabase();
+            var date = DateTime.Now.AddMonths(-2);
+            var key = $"monthly_revenue:{date.Year}-{date.Month:D2}:{storeId}";
 
-        
-        [HttpGet("revenue/previous-month/{storeId}")]
-        public async Task<ActionResult<List<DailyRevenueDTO>>> GetPreviousMonthRevenue(int storeId)
-        {
-            var result = await _statisticsService.GetPreviousMonthRevenue(storeId);
-            return Ok(result);
-        }
+            var json = await db.StringGetAsync(key);
+            if (json.IsNullOrEmpty)
+                return NotFound("Revenue data for the preprevious month was not found or has not yet been calculated.");
 
-        [HttpGet("info-abt-store/{sellerId}")]
-        public async Task<ActionResult<List<GeneralInfoAbtStoreDTO>>> GetInfoAbtStores(int sellerId)
-        {
-            List<GeneralInfoAbtStoreDTO> list = await _statisticsService.GetGeneralIngoAbtStore(sellerId);
-            return list;
+            var data = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(json);
+            return Ok(data);
         }
     }
 }

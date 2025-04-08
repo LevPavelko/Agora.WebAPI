@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Agora.BLL.Interfaces;
+﻿using Agora.BLL.Interfaces;
 using Agora.BLL.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Agora.DAL.Interfaces;
 using AutoMapper;
 using Agora.BLL.DTO;
@@ -28,6 +22,15 @@ namespace Agora.BLL.Services
             var stores = await Database.Stores.GetAll();
             return _mapper.Map<IQueryable<Store>, IEnumerable<StoreDTO>>(stores);
         }
+
+        // Ids of all stores for Redis:
+        public async Task<List<int>> GetAllStoreIds()
+        {
+            var stores = await Database.Stores.GetAll();
+            return stores.Select(s => s.Id).ToList();
+        }
+
+
         public async Task<StoreDTO> Get(int id)
         {
             var store = await Database.Stores.Get(id);

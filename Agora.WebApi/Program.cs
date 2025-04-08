@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Scalar.AspNetCore;
+using StackExchange.Redis;
 
 
 namespace Agora
@@ -53,6 +54,11 @@ namespace Agora
             builder.Services.AddTransient<IWishlistService, WishlistService>();
             builder.Services.AddTransient<ISecureService, SecureService>();
             builder.Services.AddTransient<IStatisticsService, StatisticsService>();
+            builder.Services.AddHostedService<StatisticsCacheService>();
+
+            // for Redis caching:
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false"));
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
