@@ -48,7 +48,7 @@ namespace Agora.BLL.Services
                 {
                     await CacheWeeklySalesAsync(db, statsService, storeId);
                     await CacheTop10BestSellersAsync(db, statsService, storeId);
-                    await CacheTotalProductsAsync(db, statsService, storeId);
+                    await CacheStoreTotalStatisticsAsync(db, statsService, storeId);
                 }
 
                 // UpdateRedisCache for first run or 1 time for month
@@ -116,11 +116,11 @@ namespace Agora.BLL.Services
             await db.StringSetAsync($"top_products:{storeId}", json, TimeSpan.FromDays(7));
         }
 
-        private async Task CacheTotalProductsAsync(IDatabase db, IStatisticsService statsService, int storeId)
+        private async Task CacheStoreTotalStatisticsAsync(IDatabase db, IStatisticsService statsService, int storeId)
         {
-            var totalSold = await statsService.GetTotalProductsByStore(storeId);
-            var json = JsonSerializer.Serialize(totalSold);           
-            await db.StringSetAsync($"total_products:{storeId}", json, TimeSpan.FromDays(7));
+            var stats = await statsService.GetStoreTotalStatistics(storeId);
+            var json = JsonSerializer.Serialize(stats);
+            await db.StringSetAsync($"store_total_stats:{storeId}", json, TimeSpan.FromDays(7));
         }
 
 

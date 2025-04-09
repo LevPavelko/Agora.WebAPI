@@ -197,29 +197,38 @@ namespace Agora.BLL.Services
             return list;
         }
 
-        public async Task<TotalProductsByStoreDTO> GetTotalProductsByStore(int storeId)
+        public async Task<StoreTotalStatisticsDTO> GetStoreTotalStatistics(int storeId)
         {
-            var objects = await Database.Statistics.GetProductsByStore(storeId);
-
-            int totalQuantity = 0;            
+            var objects = await Database.Statistics.GetRawStoreTotalStatistics(storeId);
+            var totalSoldItems = 0;
+            var totalOrderItems = 0;
+            var totalRevenue = 0m;
+            var customerIds = new HashSet<int>();
 
             foreach (var item in objects)
             {
                 var quantityProp = item.GetType().GetProperty("Quantity");
-                
-                if (quantityProp != null )
-                {
-                    totalQuantity += (int)quantityProp.GetValue(item);                    
-                }
+                var revenueProp = item.GetType().GetProperty("Revenue");
+                var customerIdProp = item.GetType().GetProperty("CustomerId");
+
+                var quantity = (int)quantityProp?.GetValue(item);
+                var revenue = (decimal)revenueProp?.GetValue(item);
+                var customerId = (int)customerIdProp?.GetValue(item);
+
+                totalSoldItems += quantity;
+                totalOrderItems += 1;
+                totalRevenue += revenue;
+                customerIds.Add(customerId);
             }
 
-            return new TotalProductsByStoreDTO
+            return new StoreTotalStatisticsDTO
             {
-                StoreId = storeId,                
-                TotalQuantitySold = totalQuantity
+                TotalSoldItems = totalSoldItems,
+                TotalOrderItems = totalOrderItems,
+                TotalRevenue = totalRevenue,
+                TotalCustomers = customerIds.Count
             };
         }
-
 
     }
 }
