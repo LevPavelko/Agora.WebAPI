@@ -15,6 +15,7 @@ namespace Agora.DAL.Interfaces
         Task<IQueryable<object>> GetPreviousMonthRevenue(int storeId);
         Task<IQueryable<object>> GetPrePreviousMonthRevenue(int storeId);
         Task<IQueryable<object>> GetGeneralInfoAbtStore(int sellerId);
+        Task<IQueryable<object>> GetProductsByStore(int storeId);
 
     }
 }

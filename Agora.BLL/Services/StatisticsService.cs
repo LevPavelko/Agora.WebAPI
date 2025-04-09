@@ -197,5 +197,29 @@ namespace Agora.BLL.Services
             return list;
         }
 
+        public async Task<TotalProductsByStoreDTO> GetTotalProductsByStore(int storeId)
+        {
+            var objects = await Database.Statistics.GetProductsByStore(storeId);
+
+            int totalQuantity = 0;            
+
+            foreach (var item in objects)
+            {
+                var quantityProp = item.GetType().GetProperty("Quantity");
+                
+                if (quantityProp != null )
+                {
+                    totalQuantity += (int)quantityProp.GetValue(item);                    
+                }
+            }
+
+            return new TotalProductsByStoreDTO
+            {
+                StoreId = storeId,                
+                TotalQuantitySold = totalQuantity
+            };
+        }
+
+
     }
 }

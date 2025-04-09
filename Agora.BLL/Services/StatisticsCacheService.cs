@@ -1,4 +1,5 @@
 ﻿using Agora.BLL.Interfaces;
+using Agora.DAL.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
@@ -47,6 +48,7 @@ namespace Agora.BLL.Services
                 {
                     await CacheWeeklySalesAsync(db, statsService, storeId);
                     await CacheTop10BestSellersAsync(db, statsService, storeId);
+                    await CacheTotalProductsAsync(db, statsService, storeId);
                 }
 
                 // UpdateRedisCache for first run or 1 time for month
@@ -58,15 +60,14 @@ namespace Agora.BLL.Services
             }
 
             if (_firstRun || today.DayOfWeek == DayOfWeek.Monday)
-            {
-
+            {                
                 var sellerService = scope.ServiceProvider.GetRequiredService<ISellerService>();
                 var sellerIds = await sellerService.GetAllSellerIds();
                 foreach(var sellerId in sellerIds)
                 {
                     await CacheWeeklySalesGeneralAsync(db, statsService, sellerId);
                 }
-            }
+            }         
 
 
             _firstRun = false;
@@ -114,6 +115,14 @@ namespace Agora.BLL.Services
             var json = JsonSerializer.Serialize(topProducts);
             await db.StringSetAsync($"top_products:{storeId}", json, TimeSpan.FromDays(7));
         }
+
+        private async Task CacheTotalProductsAsync(IDatabase db, IStatisticsService statsService, int storeId)
+        {
+            var totalSold = await statsService.GetTotalProductsByStore(storeId);
+            var json = JsonSerializer.Serialize(totalSold);           
+            await db.StringSetAsync($"total_products:{storeId}", json, TimeSpan.FromDays(7));
+        }
+
 
         private TimeSpan GetCacheLifetimeForMonth(DateTime date)
         {

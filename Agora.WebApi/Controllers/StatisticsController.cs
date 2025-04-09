@@ -97,5 +97,17 @@ namespace Agora.Controllers
             return Ok(data);
         }
 
+        [HttpGet("total-products/{storeId}")]
+        public async Task<IActionResult> GetTotalSold(int storeId)
+        {
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"total_products:{storeId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Total sold data not found or not yet cached.");
+
+            var data = JsonSerializer.Deserialize<TotalProductsByStoreDTO>(json);
+            return Ok(data);
+        }
     }
 }
