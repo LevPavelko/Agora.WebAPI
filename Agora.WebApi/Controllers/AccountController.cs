@@ -16,6 +16,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Agora.BLL.Services;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.EntityFrameworkCore;
 
 namespace Agora.Controllers
 {
@@ -109,6 +110,13 @@ namespace Agora.Controllers
             {
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
+        }
+
+        [HttpGet("check-email")]
+        public async Task<IActionResult> CheckEmail(string email)
+        {
+            bool exists = await _userService.CheckEmailExists(email);
+            return Ok(new { exists });
         }
 
         [HttpPost("register-user")]
