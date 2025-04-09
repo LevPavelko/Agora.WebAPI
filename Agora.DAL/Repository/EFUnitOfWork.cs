@@ -265,7 +265,7 @@ namespace Agora.DAL.Repository
                 return shippingRepository;
             }
         }
-        public IRepository<Store> Stores
+        public IStoreRepository Stores
         {
             get
             {

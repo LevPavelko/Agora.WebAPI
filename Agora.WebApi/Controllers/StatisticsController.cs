@@ -1,5 +1,6 @@
 ﻿using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
+using Agora.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -11,13 +12,15 @@ namespace Agora.Controllers
     public class StatisticsController : ControllerBase
     {
         private readonly IConnectionMultiplexer _redis;
+        private readonly IStatisticsService _statisticsService;
 
-        public StatisticsController(IConnectionMultiplexer redis)
+        public StatisticsController(IConnectionMultiplexer redis, IStatisticsService statisticsService)
         {
             _redis = redis;
+            _statisticsService = statisticsService;
         }
 
-        [HttpGet("weekly/{storeId}")]
+        [HttpGet("weekly-by-sales/{storeId}")]
         public async Task<IActionResult> GetWeekly(int storeId)
         {
             var db = _redis.GetDatabase();
@@ -57,6 +60,27 @@ namespace Agora.Controllers
                 return NotFound("Revenue data for the preprevious month was not found or has not yet been calculated.");
 
             var data = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(json);
+            return Ok(data);
+        }
+
+        [HttpGet("info-abt-stores/{sellerId}")]
+        public async Task<ActionResult<List<GeneralInfoAbtStoreDTO>>> GetInfoAbtStores(int sellerId)
+        {
+            List<GeneralInfoAbtStoreDTO> list = await _statisticsService.GetGeneralIngoAbtStore(sellerId);
+            return list;
+        }
+
+
+        [HttpGet("weekly-by-sales-general/{sellerId}")]
+        public async Task<IActionResult> GetWeeklyGeneral(int sellerId)
+        {
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"weekly_general_stats:{sellerId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Statistics was not found or has not yet been calculated.");
+
+            var data = JsonSerializer.Deserialize<List<WeeklyStatisticsDTO>>(json);
             return Ok(data);
         }
     }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agora.DAL.Repository
 {
-    public class StoreRepository: IRepository<Store>
+    public class StoreRepository: IStoreRepository
     {
         private AgoraContext db;
         public StoreRepository(AgoraContext context)
@@ -17,7 +17,7 @@ namespace Agora.DAL.Repository
         {
             return db.Stores;
         }
-
+        
         public async Task<Store> Get(int id)
         {
             return await db.Stores.FindAsync(id);

@@ -33,7 +33,7 @@ namespace Agora.DAL.Interfaces
         ISellerRepository Sellers { get; }
         IRepository<SellerReview> SellerReviews { get; }
         IRepository<Shipping> Shippings { get; }
-        IRepository<Store> Stores { get; }
+        IStoreRepository Stores { get; }
         IRepository<Subcategory> Subcategories { get; }
         IRepository<Support> Supports { get; }
         IUserRepository Users { get; }

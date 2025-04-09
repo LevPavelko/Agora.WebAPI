@@ -29,7 +29,7 @@ namespace Agora.BLL.Services
             var stores = await Database.Stores.GetAll();
             return stores.Select(s => s.Id).ToList();
         }
-
+        
 
         public async Task<StoreDTO> Get(int id)
         {

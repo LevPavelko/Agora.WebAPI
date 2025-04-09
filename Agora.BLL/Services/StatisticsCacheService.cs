@@ -29,36 +29,46 @@ namespace Agora.BLL.Services
 
         private async void UpdateRedisCache(object state)
         {
+          
             Console.WriteLine("UpdateRedisCache started...");
-
             using var scope = _scopeFactory.CreateScope();
             var statsService = scope.ServiceProvider.GetRequiredService<IStatisticsService>();
             var db = _redis.GetDatabase();
-
             var today = DateOnly.FromDateTime(DateTime.Now);
             var storeService = scope.ServiceProvider.GetRequiredService<IStoreService>();
             var storeIds = await storeService.GetAllStoreIds();
-
+            
             // set cache for all stores in db:
             foreach (var storeId in storeIds)
             {
+                
                 // UpdateRedisCache for first run or 1 time for week
                 if (_firstRun || today.DayOfWeek == DayOfWeek.Monday)
                 {
-                    var weeklyStats = await statsService.GetWeeksStatisticsBySales(storeId);
-                    var json = JsonSerializer.Serialize(weeklyStats);
-                    // 7 - lifetime of cache in Redis for  weekly stetistics
-                    await db.StringSetAsync($"weekly_stats:{storeId}", json, TimeSpan.FromDays(7));
+                    await CacheWeeklySalesAsync(db, statsService, storeId);
                 }
 
                 // UpdateRedisCache for first run or 1 time for month
                 if (_firstRun || today.Day == 1)
-                {        
+                {
                     await CachePreviousMonthRevenueAsync(db, statsService, storeId);
                     await CachePrePreviousMonthRevenueAsync(db, statsService, storeId);
                 }
             }
-            
+
+            if (_firstRun || today.DayOfWeek == DayOfWeek.Monday)
+            {
+
+                var sellerService = scope.ServiceProvider.GetRequiredService<ISellerService>();
+                var sellerIds = await sellerService.GetAllSellerIds();
+                foreach(var sellerId in sellerIds)
+                {
+                    await CacheWeeklySalesGeneralAsync(db, statsService, sellerId);
+                }
+            }
+
+
+
             _firstRun = false;
         }
 
@@ -83,6 +93,21 @@ namespace Agora.BLL.Services
             // GetCacheLifetimeForMonth(date) - lifetime of cache in Redis (28, 29, 30 or 31 days) 
             await db.StringSetAsync(key, json, GetCacheLifetimeForMonth(date));
         }
+        private async Task CacheWeeklySalesAsync(IDatabase db, IStatisticsService statsService, int storeId)
+        {
+            var weeklyStats = await statsService.GetWeeksStatisticsBySales(storeId);
+            var json = JsonSerializer.Serialize(weeklyStats);
+            // 7 - lifetime of cache in Redis for  weekly stetistics
+            await db.StringSetAsync($"weekly_stats:{storeId}", json, TimeSpan.FromDays(7));
+        }
+        private async Task CacheWeeklySalesGeneralAsync(IDatabase db, IStatisticsService statsService, int sellerId)
+        {
+            var weeklyStatsGeneral = await statsService.GetWeeksStatisticsBySalesGeneral(sellerId);
+            var json = JsonSerializer.Serialize(weeklyStatsGeneral);
+            // 7 - lifetime of cache in Redis for  weekly stetistics
+            await db.StringSetAsync($"weekly_general_stats:{sellerId}", json, TimeSpan.FromDays(7));
+        }
+
 
         private TimeSpan GetCacheLifetimeForMonth(DateTime date)
         {

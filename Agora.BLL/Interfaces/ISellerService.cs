@@ -11,6 +11,7 @@ namespace Agora.BLL.Interfaces
     {
         Task<IQueryable<SellerDTO>> GetAll();
         Task<SellerDTO> Get(int id);
+        Task<List<int>> GetAllSellerIds();
         Task<int> Create(SellerDTO sellerDTO);
         Task Update(SellerDTO sellerDTO);
         Task Delete(int id);
