@@ -172,6 +172,30 @@ namespace Agora.BLL.Services
             return list;
         }
 
+        public async Task<List<TopProductDTO>> GetTop10BestProducts(int storeId)
+        {
+            var objects = await Database.Statistics.GetTop10BestProducts(storeId);
+            var list = new List<TopProductDTO>();
+
+            foreach (var item in objects)
+            {
+                var productIdProp = item.GetType().GetProperty("ProductId");
+                var nameProp = item.GetType().GetProperty("ProductName");
+                var quantityProp = item.GetType().GetProperty("TotalQuantitySold");
+
+                if (productIdProp != null && nameProp != null && quantityProp != null)
+                {
+                    list.Add(new TopProductDTO
+                    {
+                        ProductId = (int)productIdProp.GetValue(item),
+                        ProductName = nameProp.GetValue(item)?.ToString(),
+                        QuantitySold = (int)quantityProp.GetValue(item)
+                    });
+                }
+            }
+
+            return list;
+        }
 
     }
 }

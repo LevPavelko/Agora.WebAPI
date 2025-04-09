@@ -24,41 +24,49 @@ namespace Agora
             builder.Services.AddAgoraContext(connection);
 
             builder.Services.AddUnitOfWorkService();
-            builder.Services.AddTransient<IUserService, UserService>();
-            builder.Services.AddTransient<IAddressService, AddressService>();
-            builder.Services.AddTransient<IAdminService, AdminService>();
-            builder.Services.AddTransient<IBankCardService, BankCardService>();
-            builder.Services.AddTransient<IBrandService, BrandService>();
-            builder.Services.AddTransient<ICashbackService, CashbackService>();
-            builder.Services.AddTransient<ICategoryService, CategoryService>();
-            builder.Services.AddTransient<ICountryService, CountryService>();
-            builder.Services.AddTransient<ICustomerService, CustomerService>();
-            builder.Services.AddTransient<IDeliveryOptionsService, DeliveryOptionsService>();
-            builder.Services.AddTransient<IDiscountService, DiscountService>();
-            builder.Services.AddTransient<IFAQCategoryService, FAQCategoryService>();
-            builder.Services.AddTransient<IFAQService, FAQService>();
-            builder.Services.AddTransient<IGiftCardService, GiftCardService>();
-            builder.Services.AddTransient<IOrderItemService, OrderItemService>();
-            builder.Services.AddTransient<IOrderService, OrderService>();
-            builder.Services.AddTransient<IPaymentMethodService, PaymentMethodService>();
-            builder.Services.AddTransient<IPaymentService, PaymentService>();
-            builder.Services.AddTransient<IProductService, ProductService>();
-            builder.Services.AddTransient<IReturnItemService, ReturnItemService>();
-            builder.Services.AddTransient<IReturnService, ReturnService>();
-            builder.Services.AddTransient<ISellerReviewService, SellerReviewService>();
-            builder.Services.AddTransient<ISellerService, SellerService>();
-            builder.Services.AddTransient<IShippingService, ShippingService>();
-            builder.Services.AddTransient<IStoreService, StoreService>();
-            builder.Services.AddTransient<ISubcategoryService, SubcategoryService>();
-            builder.Services.AddTransient<ISupportService, SupportService>();
-            builder.Services.AddTransient<IWishlistService, WishlistService>();
-            builder.Services.AddTransient<ISecureService, SecureService>();
-            builder.Services.AddTransient<IStatisticsService, StatisticsService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IBankCardService, BankCardService>();
+            builder.Services.AddScoped<IBrandService, BrandService>();
+            builder.Services.AddScoped<ICashbackService, CashbackService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ICountryService, CountryService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IDeliveryOptionsService, DeliveryOptionsService>();
+            builder.Services.AddScoped<IDiscountService, DiscountService>();
+            builder.Services.AddScoped<IFAQCategoryService, FAQCategoryService>();
+            builder.Services.AddScoped<IFAQService, FAQService>();
+            builder.Services.AddScoped<IGiftCardService, GiftCardService>();
+            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IReturnItemService, ReturnItemService>();
+            builder.Services.AddScoped<IReturnService, ReturnService>();
+            builder.Services.AddScoped<ISellerReviewService, SellerReviewService>();
+            builder.Services.AddScoped<ISellerService, SellerService>();
+            builder.Services.AddScoped<IShippingService, ShippingService>();
+            builder.Services.AddScoped<IStoreService, StoreService>();
+            builder.Services.AddScoped<ISubcategoryService, SubcategoryService>();
+            builder.Services.AddScoped<ISupportService, SupportService>();
+            builder.Services.AddScoped<IWishlistService, WishlistService>();
+            builder.Services.AddScoped<ISecureService, SecureService>();
+            builder.Services.AddScoped<IStatisticsService, StatisticsService>();
             builder.Services.AddHostedService<StatisticsCacheService>();
 
             // for Redis caching:
-            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false"));
+            try
+            {
+                var redis = ConnectionMultiplexer.Connect("localhost:6379");
+                builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+            }            
+            catch
+            {
+                Console.WriteLine("Redis not connected..");
+                builder.Services.AddSingleton<IConnectionMultiplexer>(sp => null);
+            }            
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 

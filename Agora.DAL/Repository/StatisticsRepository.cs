@@ -111,5 +111,24 @@ namespace Agora.DAL.Repository
            
             return Task.FromResult(query.Cast<object>());
         }
+
+        public Task<IQueryable<object>> GetTop10BestProducts(int storeId)
+        {
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.Id == storeId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .GroupBy(o => new { o.Product.Id, o.Product.Name })
+                .Select(g => new
+                {
+                    ProductId = g.Key.Id,
+                    ProductName = g.Key.Name,
+                    TotalQuantitySold = g.Sum(x => x.Quantity)
+                })
+                .OrderByDescending(x => x.TotalQuantitySold)
+                .Take(10);
+
+            return Task.FromResult(query.Cast<object>());
+        }
+
     }
 }

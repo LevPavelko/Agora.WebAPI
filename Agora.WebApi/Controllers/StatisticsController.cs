@@ -83,5 +83,19 @@ namespace Agora.Controllers
             var data = JsonSerializer.Deserialize<List<WeeklyStatisticsDTO>>(json);
             return Ok(data);
         }
+
+        [HttpGet("top-products/{storeId}")]
+        public async Task<IActionResult> GetTopProducts(int storeId)
+        {
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"top_products:{storeId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Top products were not found or have not yet been calculated.");
+
+            var data = JsonSerializer.Deserialize<List<TopProductDTO>>(json);
+            return Ok(data);
+        }
+
     }
 }
