@@ -46,6 +46,7 @@ namespace Agora.BLL.Services
                 if (_firstRun || today.DayOfWeek == DayOfWeek.Monday)
                 {
                     await CacheWeeklySalesAsync(db, statsService, storeId);
+                    await CacheTop10BestSellersAsync(db, statsService, storeId);
                 }
 
                 // UpdateRedisCache for first run or 1 time for month
@@ -66,7 +67,6 @@ namespace Agora.BLL.Services
                     await CacheWeeklySalesGeneralAsync(db, statsService, sellerId);
                 }
             }
-
 
 
             _firstRun = false;
@@ -108,6 +108,12 @@ namespace Agora.BLL.Services
             await db.StringSetAsync($"weekly_general_stats:{sellerId}", json, TimeSpan.FromDays(7));
         }
 
+        private async Task CacheTop10BestSellersAsync(IDatabase db, IStatisticsService statsService, int storeId)
+        {
+            var topProducts = await statsService.GetTop10BestProducts(storeId);
+            var json = JsonSerializer.Serialize(topProducts);
+            await db.StringSetAsync($"top_products:{storeId}", json, TimeSpan.FromDays(7));
+        }
 
         private TimeSpan GetCacheLifetimeForMonth(DateTime date)
         {

@@ -8,9 +8,8 @@ namespace Agora.BLL.Interfaces
         Task<List<DailyRevenueDTO>> GetPrePreviousMonthRevenue(int storeId);
         Task<List<WeeklyStatisticsDTO>> GetWeeksStatisticsBySalesGeneral(int sellerId);
         Task<List<DailyRevenueDTO>> GetPreviousMonthRevenue(int storeId);
-        
-        Task<List<GeneralInfoAbtStoreDTO>> GetGeneralIngoAbtStore(int sellerId);
-        
+        Task<List<TopProductDTO>> GetTop10BestProducts(int storeId);
+        Task<List<GeneralInfoAbtStoreDTO>> GetGeneralIngoAbtStore(int sellerId);        
 
     }
 }
