@@ -130,5 +130,20 @@ namespace Agora.DAL.Repository
             return Task.FromResult(query.Cast<object>());
         }
 
+        // for total statistics by store
+        public Task<IQueryable<object>> GetRawStoreTotalStatistics(int storeId)
+        {
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.Id == storeId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Select(o => new
+                {
+                    o.Quantity,
+                    Revenue = o.PriceAtMoment * o.Quantity,
+                    CustomerId = o.Order.Customer.Id
+                });
+
+            return Task.FromResult(query.Cast<object>());
+        }
     }
 }
