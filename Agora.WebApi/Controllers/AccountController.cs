@@ -137,25 +137,27 @@ namespace Agora.Controllers
 
                 var userId = await _userService.CreateReturnId(userDTO);
 
-                var user = await _userService.Get(userId);
-
-                var role = await _userService.GetRoleByUserId(user.Id);
-                string jwtToken = _secureService.GenerateJwtToken(user, role);
-                Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
-                {
-                    HttpOnly = true,
-                    Secure = true, //  Если HTTPS то true
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTime.UtcNow.AddMinutes(30)
-                });
-
-
+                // сначала  Customer, чтобы потом роль была найдена
                 bool customerCreated = await _customerService.CreateForUser(userId);
                 if (!customerCreated)
                 {
                     return StatusCode(500, "Error occurred while creating customer record.");
                 }
+
+                var user = await _userService.Get(userId);
+                var role = await _userService.GetRoleByUserId(user.Id);
+
+                string jwtToken = _secureService.GenerateJwtToken(user, role);
+                Response.Cookies.Append("jwt", jwtToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddMinutes(30)
+                });
+
                 CreateSessions(user.Id, role.Id, role.Role);
+
                 return CreatedAtAction(nameof(RegisterUser), new { id = user.Id }, new { user, jwtToken });
             }
             catch (Exception ex)
