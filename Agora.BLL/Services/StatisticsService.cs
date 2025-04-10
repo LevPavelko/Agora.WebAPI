@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
+using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 using AutoMapper;
 
@@ -251,6 +252,43 @@ namespace Agora.BLL.Services
             IQueryable<object> objects = await Database.Statistics.GetPreviousMonthRevenueGeneral(sellerId);
             return GetStatisticsWithSummedRevenues(objects);
         }
+
+        public async Task<List<CategorySalesDTO>> GetSalesByCategoriesGeneral(int sellerId)
+        {
+
+            IQueryable<object> objects = await Database.Statistics.GetSalesByCategoriesGeneral(sellerId);
+            List<CategorySalesDTO> list = new List<CategorySalesDTO>();
+
+            foreach (var item in objects)
+            {
+                CategorySalesDTO dto = new CategorySalesDTO();
+                var nameProperty = item.GetType().GetProperty("Name");
+                var quantityProperty = item.GetType().GetProperty("Quantity");
+
+                if (nameProperty != null && quantityProperty != null)
+                {
+                    dto.CategoryName = (string)nameProperty.GetValue(item);
+                    dto.QuantityOfSales = (int)quantityProperty.GetValue(item);
+                }
+
+                list.Add(dto);
+            }
+
+            var groupedByName = list
+               .GroupBy(s => s.CategoryName)
+               .Where(group => group.Count() >= 1)
+               .Select(group => new CategorySalesDTO
+               {
+                   CategoryName = group.Key,
+                   QuantityOfSales = group.Sum(s => s.QuantityOfSales)
+               })
+               .ToList();
+
+            
+
+            return groupedByName;
+        }
+
 
     }
 }

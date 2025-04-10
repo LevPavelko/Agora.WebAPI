@@ -65,6 +65,7 @@ namespace Agora.BLL.Services
                 foreach(var sellerId in sellerIds)
                 {
                     await CacheWeeklySalesGeneralAsync(db, statsService, sellerId);
+                    await CacheSalesByCategory(db, statsService, sellerId);
                 }
             }
             if (_firstRun || today.Day == 1)
@@ -133,6 +134,11 @@ namespace Agora.BLL.Services
         {
             var date = DateTime.Now.AddMonths(-2);
             var key = $"monthly_revenue_general:{date.Year}-{date.Month:D2}:{sellerId}";
+            var revenue = await statsService.GetPrePreviousMonthRevenueGeneral(sellerId);
+            var json = JsonSerializer.Serialize(revenue);
+            // GetCacheLifetimeForMonth(date) - lifetime of cache in Redis (28, 29, 30 or 31 days) 
+            await db.StringSetAsync(key, json, GetCacheLifetimeForMonth(date));
+        }
         private async Task CacheTop10BestSellersAsync(IDatabase db, IStatisticsService statsService, int storeId)
         {
             var topProducts = await statsService.GetTop10BestProducts(storeId);
@@ -147,11 +153,12 @@ namespace Agora.BLL.Services
             await db.StringSetAsync($"store_total_stats:{storeId}", json, TimeSpan.FromDays(7));
         }
 
-
-            var revenue = await statsService.GetPrePreviousMonthRevenueGeneral(sellerId);
-            var json = JsonSerializer.Serialize(revenue);
-            // GetCacheLifetimeForMonth(date) - lifetime of cache in Redis (28, 29, 30 or 31 days) 
-            await db.StringSetAsync(key, json, GetCacheLifetimeForMonth(date));
+        private async Task CacheSalesByCategory(IDatabase db, IStatisticsService statsService, int sellerId)
+        {
+            var sales = await statsService.GetSalesByCategoriesGeneral(sellerId);
+            var json = JsonSerializer.Serialize(sales);
+            // 7 - lifetime of cache in Redis for  weekly stetistics
+            await db.StringSetAsync($"sales_by_category_stats:{sellerId}", json, TimeSpan.FromDays(7));
         }
         private TimeSpan GetCacheLifetimeForMonth(DateTime date)
         {

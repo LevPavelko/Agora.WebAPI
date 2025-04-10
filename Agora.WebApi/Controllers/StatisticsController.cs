@@ -148,5 +148,19 @@ namespace Agora.Controllers
 
         }
 
+
+        [HttpGet("category-sales/{sellerId}")]
+        public async Task<IActionResult> GetSalesByCategory(int sellerId)
+        {
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"sales_by_category_stats:{sellerId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Sales By Catogory were not found or have not yet been calculated.");
+
+            var data = JsonSerializer.Deserialize<List<CategorySalesDTO>>(json);
+            return Ok(data);
+        }
+
     }
 }
