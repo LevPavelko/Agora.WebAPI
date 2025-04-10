@@ -172,6 +172,17 @@ namespace Agora.BLL.Services
             return list;
         }
 
+        public async Task<List<DailyRevenueDTO>> GetPrePreviousMonthRevenueGeneral(int sellerId)
+        {
+            IQueryable<object> objects = await Database.Statistics.GetPrePreviousMonthRevenueGeneral(sellerId);
+            return GetStatisticsWithSummedRevenues(objects);
+        }
+
+        public async Task<List<DailyRevenueDTO>> GetPreviousMonthRevenueGeneral(int sellerId)
+        {
+            IQueryable<object> objects = await Database.Statistics.GetPreviousMonthRevenueGeneral(sellerId);
+            return GetStatisticsWithSummedRevenues(objects);
+        }
 
     }
 }

@@ -111,5 +111,49 @@ namespace Agora.DAL.Repository
            
             return Task.FromResult(query.Cast<object>());
         }
+
+        public Task<IQueryable<object>> GetPreviousMonthRevenueGeneral(int sellerId)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("in");
+            var now = DateTime.Now;
+            var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
+            var firstDayOfPreviousMonth = firstDayOfThisMonth.AddMonths(-1);
+            var lastDayOfPreviousMonth = firstDayOfThisMonth.AddDays(-1);
+
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.SellerId == sellerId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Where(o => o.Date >= firstDayOfPreviousMonth && o.Date <= lastDayOfPreviousMonth)
+                .Select(o => new
+                {
+                    o.Date,
+                    Revenue = o.PriceAtMoment * o.Quantity
+                });
+
+            return Task.FromResult(query.Cast<object>());
+        }
+        public Task<IQueryable<object>> GetPrePreviousMonthRevenueGeneral(int sellerId)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("in");
+            var now = DateTime.Now;
+            var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
+            var firstDayOfPrePreviousMonth = firstDayOfThisMonth.AddMonths(-2);
+            var firstDayOfPreviousMonth = firstDayOfThisMonth.AddMonths(-1);
+            var lastDayOfPrePreviousMonth = firstDayOfPreviousMonth.AddDays(-1);
+
+            var query = db.OrderItems
+                .Where(o => o.Product.Store.SellerId == sellerId)
+                .Where(o => o.Status == Enums.OrderStatus.Completed)
+                .Where(o => o.Date >= firstDayOfPrePreviousMonth && o.Date <= lastDayOfPrePreviousMonth)
+                .Select(o => new
+                {
+                    o.Date,
+                    Revenue = o.PriceAtMoment * o.Quantity
+                });
+
+            return Task.FromResult(query.Cast<object>());
+        }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
 using Agora.BLL.Services;
+using Agora.DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using StackExchange.Redis;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Agora.Controllers
 {
@@ -83,5 +86,41 @@ namespace Agora.Controllers
             var data = JsonSerializer.Deserialize<List<WeeklyStatisticsDTO>>(json);
             return Ok(data);
         }
+
+
+        [HttpGet("revenue/general-monthly/{sellerId}")]
+        public async Task<IActionResult> GetMonthGeneral(int sellerId)
+        {
+            var db = _redis.GetDatabase();
+            var twoMonthAgo = DateTime.Now.AddMonths(-2);
+            var oneMonthAgo = DateTime.Now.AddMonths(-1);
+            var thisMonthKey = $"monthly_revenue_general:{oneMonthAgo.Year}-{oneMonthAgo.Month:D2}:{sellerId}";
+            var lastMonthKey = $"monthly_revenue_general:{twoMonthAgo.Year}-{twoMonthAgo.Month:D2}:{sellerId}";
+            var thisMonthJson = await db.StringGetAsync(thisMonthKey);
+            var lastMonthJson = await db.StringGetAsync(lastMonthKey);
+            var thisMonthData = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(thisMonthJson);
+            var lastMonthData = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(lastMonthJson);
+            List<MonthlyRevenueDTO> list = new List<MonthlyRevenueDTO>();
+            foreach (var thisMonth in thisMonthData)
+            {
+                foreach(var lastMonth in lastMonthData)
+                {
+                    if (thisMonth.Date.Day.Equals(lastMonth.Date.Day))
+                    {
+                        MonthlyRevenueDTO revenueDTO = new MonthlyRevenueDTO();
+                        var date = thisMonth.Date;
+                        revenueDTO.Date = date.ToString("dd-MM");
+                        revenueDTO.ThisMonth = thisMonth.Revenue;
+                        revenueDTO.LastMonth = lastMonth.Revenue;
+                        list.Add(revenueDTO);
+                    }
+
+                }
+            }
+                return Ok(list);
+
+
+        }
+
     }
 }

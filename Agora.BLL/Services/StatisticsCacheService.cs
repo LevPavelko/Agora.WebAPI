@@ -1,4 +1,5 @@
 ﻿using Agora.BLL.Interfaces;
+using Agora.DAL.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
@@ -29,7 +30,6 @@ namespace Agora.BLL.Services
 
         private async void UpdateRedisCache(object state)
         {
-          
             Console.WriteLine("UpdateRedisCache started...");
             using var scope = _scopeFactory.CreateScope();
             var statsService = scope.ServiceProvider.GetRequiredService<IStatisticsService>();
@@ -66,10 +66,21 @@ namespace Agora.BLL.Services
                     await CacheWeeklySalesGeneralAsync(db, statsService, sellerId);
                 }
             }
+            if (_firstRun || today.Day == 1)
+            {
+                var sellerService = scope.ServiceProvider.GetRequiredService<ISellerService>();
+                var sellerIds = await sellerService.GetAllSellerIds();
+                foreach (var sellerId in sellerIds)
+                {
+                    await CachePreviousMonthRevenueGeneralAsync(db, statsService, sellerId);
+                    await CachePrePreviousMonthRevenueGeneralAsync(db, statsService, sellerId);
+                }
+                    
+            }
 
 
 
-            _firstRun = false;
+                _firstRun = false;
         }
 
         private async Task CachePreviousMonthRevenueAsync(IDatabase db, IStatisticsService statsService, int storeId)
@@ -82,7 +93,6 @@ namespace Agora.BLL.Services
 
             await db.StringSetAsync(key, json, GetCacheLifetimeForMonth(date));
         }
-
         private async Task CachePrePreviousMonthRevenueAsync(IDatabase db, IStatisticsService statsService, int storeId)
         {
             var date = DateTime.Now.AddMonths(-2);
@@ -108,7 +118,26 @@ namespace Agora.BLL.Services
             await db.StringSetAsync($"weekly_general_stats:{sellerId}", json, TimeSpan.FromDays(7));
         }
 
+        private async Task CachePreviousMonthRevenueGeneralAsync(IDatabase db, IStatisticsService statsService, int sellerId)
+        {
+            var date = DateTime.Now.AddMonths(-1);
+            var key = $"monthly_revenue_general:{date.Year}-{date.Month:D2}:{sellerId}";
 
+            var revenue = await statsService.GetPreviousMonthRevenueGeneral(sellerId);
+            var json = JsonSerializer.Serialize(revenue);
+
+            await db.StringSetAsync(key, json, GetCacheLifetimeForMonth(date));
+        }
+        private async Task CachePrePreviousMonthRevenueGeneralAsync(IDatabase db, IStatisticsService statsService, int sellerId)
+        {
+            var date = DateTime.Now.AddMonths(-2);
+            var key = $"monthly_revenue_general:{date.Year}-{date.Month:D2}:{sellerId}";
+
+            var revenue = await statsService.GetPrePreviousMonthRevenueGeneral(sellerId);
+            var json = JsonSerializer.Serialize(revenue);
+            // GetCacheLifetimeForMonth(date) - lifetime of cache in Redis (28, 29, 30 or 31 days) 
+            await db.StringSetAsync(key, json, GetCacheLifetimeForMonth(date));
+        }
         private TimeSpan GetCacheLifetimeForMonth(DateTime date)
         {
             var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
