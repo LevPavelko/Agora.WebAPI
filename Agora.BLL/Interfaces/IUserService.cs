@@ -15,6 +15,7 @@ namespace Agora.BLL.Interfaces
         Task<bool> CheckEmailExists(string email);
         Task<int> CreateReturnId(UserDTO userDTO);
         Task<UserDTO> GetByEmail(string email);
+        Task<UserDTO> GetByCheckEmail(string email);
         Task<RoleDTO> GetRoleByUserId(int id);
         Task Create(UserDTO userDTO);
         Task Update(UserDTO userDTO);

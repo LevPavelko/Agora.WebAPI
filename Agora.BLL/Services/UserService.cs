@@ -9,6 +9,7 @@ using Agora.BLL.Infrastructure;
 using Agora.BLL.Interfaces;
 using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
+using Agora.DAL.Repository;
 using AutoMapper;
 
 namespace Agora.BLL.Services
@@ -67,6 +68,29 @@ namespace Agora.BLL.Services
                 GoogleId = user.GoogleId
 
             };
+        }
+
+        public async Task<UserDTO> GetByCheckEmail(string email)
+        {
+            var user = await Database.Users.GetByEmail(email);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var userDTO = new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Password = user.Password,
+                GoogleId = user.GoogleId
+            };
+
+            return userDTO;
         }
 
         public async Task<RoleDTO> GetRoleByUserId(int id)
