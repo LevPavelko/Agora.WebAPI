@@ -174,27 +174,38 @@ namespace Agora.BLL.Services
 
         public async Task<List<TopProductDTO>> GetTop10BestProducts(int storeId)
         {
-            var objects = await Database.Statistics.GetTop10BestProducts(storeId);
-            var list = new List<TopProductDTO>();
+            IQueryable<object> rawData = await Database.Statistics.GetTop10BestProducts(storeId);
+            var salesList = new List<(int ProductId, string ProductName, int Quantity)>();
 
-            foreach (var item in objects)
+            foreach (var item in rawData)
             {
                 var productIdProp = item.GetType().GetProperty("ProductId");
-                var nameProp = item.GetType().GetProperty("ProductName");
-                var quantityProp = item.GetType().GetProperty("TotalQuantitySold");
+                var productNameProp = item.GetType().GetProperty("ProductName");
+                var quantityProp = item.GetType().GetProperty("Quantity");
 
-                if (productIdProp != null && nameProp != null && quantityProp != null)
+                if (productIdProp != null && productNameProp != null && quantityProp != null)
                 {
-                    list.Add(new TopProductDTO
-                    {
-                        ProductId = (int)productIdProp.GetValue(item),
-                        ProductName = nameProp.GetValue(item)?.ToString(),
-                        QuantitySold = (int)quantityProp.GetValue(item)
-                    });
+                    int productId = (int)productIdProp.GetValue(item);
+                    string name = productNameProp.GetValue(item)?.ToString();
+                    int quantity = (int)quantityProp.GetValue(item);
+
+                    salesList.Add((productId, name, quantity));
                 }
             }
 
-            return list;
+            var topProducts = salesList
+                .GroupBy(x => new { x.ProductId, x.ProductName })
+                .Select(g => new TopProductDTO
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.ProductName,
+                    QuantitySold = g.Sum(x => x.Quantity)
+                })
+                .OrderByDescending(p => p.QuantitySold)
+                .Take(10)
+                .ToList();
+
+            return topProducts;
         }
 
         public async Task<StoreTotalStatisticsDTO> GetStoreTotalStatistics(int storeId)
