@@ -87,6 +87,32 @@ namespace Agora.Controllers
             return Ok(data);
         }
 
+        [HttpGet("top-products/{storeId}")]
+        public async Task<IActionResult> GetTopProducts(int storeId)
+        {
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"top_products:{storeId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Top products were not found or have not yet been calculated.");
+
+            var data = JsonSerializer.Deserialize<List<TopProductDTO>>(json);
+            return Ok(data);
+        }
+
+        [HttpGet("total-statistics/{storeId}")]
+        public async Task<IActionResult> GetStoreTotals(int storeId)
+        {
+            var db = _redis.GetDatabase();
+            var json = await db.StringGetAsync($"store_total_stats:{storeId}");
+
+            if (json.IsNullOrEmpty)
+                return NotFound("Store totals data not found or not yet cached.");
+
+            var data = JsonSerializer.Deserialize<StoreTotalStatisticsDTO>(json);
+            return Ok(data);
+        }
+
 
         [HttpGet("revenue/general-monthly/{sellerId}")]
         public async Task<IActionResult> GetMonthGeneral(int sellerId)

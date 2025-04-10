@@ -172,6 +172,74 @@ namespace Agora.BLL.Services
             return list;
         }
 
+        public async Task<List<TopProductDTO>> GetTop10BestProducts(int storeId)
+        {
+            IQueryable<object> rawData = await Database.Statistics.GetTop10BestProducts(storeId);
+            var salesList = new List<(int ProductId, string ProductName, int Quantity)>();
+
+            foreach (var item in rawData)
+            {
+                var productIdProp = item.GetType().GetProperty("ProductId");
+                var productNameProp = item.GetType().GetProperty("ProductName");
+                var quantityProp = item.GetType().GetProperty("Quantity");
+
+                if (productIdProp != null && productNameProp != null && quantityProp != null)
+                {
+                    int productId = (int)productIdProp.GetValue(item);
+                    string name = productNameProp.GetValue(item)?.ToString();
+                    int quantity = (int)quantityProp.GetValue(item);
+
+                    salesList.Add((productId, name, quantity));
+                }
+            }
+
+            var topProducts = salesList
+                .GroupBy(x => new { x.ProductId, x.ProductName })
+                .Select(g => new TopProductDTO
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.ProductName,
+                    QuantitySold = g.Sum(x => x.Quantity)
+                })
+                .OrderByDescending(p => p.QuantitySold)
+                .Take(10)
+                .ToList();
+
+            return topProducts;
+        }
+
+        public async Task<StoreTotalStatisticsDTO> GetStoreTotalStatistics(int storeId)
+        {
+            var objects = await Database.Statistics.GetRawStoreTotalStatistics(storeId);
+            var totalSoldItems = 0;
+            var totalOrderItems = 0;
+            var totalRevenue = 0m;
+            var customerIds = new HashSet<int>();
+
+            foreach (var item in objects)
+            {
+                var quantityProp = item.GetType().GetProperty("Quantity");
+                var revenueProp = item.GetType().GetProperty("Revenue");
+                var customerIdProp = item.GetType().GetProperty("CustomerId");
+
+                var quantity = (int)quantityProp?.GetValue(item);
+                var revenue = (decimal)revenueProp?.GetValue(item);
+                var customerId = (int)customerIdProp?.GetValue(item);
+
+                totalSoldItems += quantity;
+                totalOrderItems += 1;
+                totalRevenue += revenue;
+                customerIds.Add(customerId);
+            }
+
+            return new StoreTotalStatisticsDTO
+            {
+                TotalSoldItems = totalSoldItems,
+                TotalOrderItems = totalOrderItems,
+                TotalRevenue = totalRevenue,
+                TotalCustomers = customerIds.Count
+            };
+        }
         public async Task<List<DailyRevenueDTO>> GetPrePreviousMonthRevenueGeneral(int sellerId)
         {
             IQueryable<object> objects = await Database.Statistics.GetPrePreviousMonthRevenueGeneral(sellerId);

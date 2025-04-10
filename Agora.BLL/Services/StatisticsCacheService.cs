@@ -46,6 +46,8 @@ namespace Agora.BLL.Services
                 if (_firstRun || today.DayOfWeek == DayOfWeek.Monday)
                 {
                     await CacheWeeklySalesAsync(db, statsService, storeId);
+                    await CacheTop10BestSellersAsync(db, statsService, storeId);
+                    await CacheStoreTotalStatisticsAsync(db, statsService, storeId);
                 }
 
                 // UpdateRedisCache for first run or 1 time for month
@@ -57,8 +59,7 @@ namespace Agora.BLL.Services
             }
 
             if (_firstRun || today.DayOfWeek == DayOfWeek.Monday)
-            {
-
+            {                
                 var sellerService = scope.ServiceProvider.GetRequiredService<ISellerService>();
                 var sellerIds = await sellerService.GetAllSellerIds();
                 foreach(var sellerId in sellerIds)
@@ -132,6 +133,20 @@ namespace Agora.BLL.Services
         {
             var date = DateTime.Now.AddMonths(-2);
             var key = $"monthly_revenue_general:{date.Year}-{date.Month:D2}:{sellerId}";
+        private async Task CacheTop10BestSellersAsync(IDatabase db, IStatisticsService statsService, int storeId)
+        {
+            var topProducts = await statsService.GetTop10BestProducts(storeId);
+            var json = JsonSerializer.Serialize(topProducts);
+            await db.StringSetAsync($"top_products:{storeId}", json, TimeSpan.FromDays(7));
+        }
+
+        private async Task CacheStoreTotalStatisticsAsync(IDatabase db, IStatisticsService statsService, int storeId)
+        {
+            var stats = await statsService.GetStoreTotalStatistics(storeId);
+            var json = JsonSerializer.Serialize(stats);
+            await db.StringSetAsync($"store_total_stats:{storeId}", json, TimeSpan.FromDays(7));
+        }
+
 
             var revenue = await statsService.GetPrePreviousMonthRevenueGeneral(sellerId);
             var json = JsonSerializer.Serialize(revenue);
