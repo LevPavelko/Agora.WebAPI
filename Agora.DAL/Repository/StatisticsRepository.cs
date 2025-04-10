@@ -14,7 +14,7 @@ namespace Agora.DAL.Repository
 
         public Task<IQueryable<object>> GetWeeksStatisticsBySales(int storeId)
         {
-            Console.WriteLine("!!! Check work of  UpdateRedisCache - WeeksStatisticsBySales ");
+            Console.WriteLine("!!! Check work of  UpdateRedisCache - WeeksStatisticsBySales for store: " + storeId);
 
             var dateNow = DateOnly.FromDateTime(DateTime.Now);
            
@@ -55,7 +55,7 @@ namespace Agora.DAL.Repository
         }
         public Task<IQueryable<object>> GetPreviousMonthRevenue(int storeId)
         {
-            Console.WriteLine("!!! Check work of  UpdateRedisCache - PreviousMonthRevenue ");
+            Console.WriteLine("!!! Check work of  UpdateRedisCache - PreviousMonthRevenue for store: " + storeId);
 
             var now = DateTime.Now;
             var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
@@ -76,7 +76,7 @@ namespace Agora.DAL.Repository
         }
         public Task<IQueryable<object>> GetPrePreviousMonthRevenue(int storeId)
         {
-            Console.WriteLine("!!! Check work of  UpdateRedisCache - PrePreviousMonthRevenue ");
+            Console.WriteLine("!!! Check work of  UpdateRedisCache - PrePreviousMonthRevenue for store: " + storeId);
 
             var now = DateTime.Now;
             var firstDayOfThisMonth = new DateOnly(now.Year, now.Month, 1);
@@ -112,20 +112,24 @@ namespace Agora.DAL.Repository
             return Task.FromResult(query.Cast<object>());
         }
 
+        // top 10 products for the month
         public Task<IQueryable<object>> GetTop10BestProducts(int storeId)
         {
+            var today = DateTime.Today;
+            var monthAgoDate = today.AddMonths(-1); 
+            var monthAgo = DateOnly.FromDateTime(monthAgoDate);
+
             var query = db.OrderItems
                 .Where(o => o.Product.Store.Id == storeId)
                 .Where(o => o.Status == Enums.OrderStatus.Completed)
-                .GroupBy(o => new { o.Product.Id, o.Product.Name })
-                .Select(g => new
+                .Where(o => o.Date >= monthAgo)
+                .Select(o => new
                 {
-                    ProductId = g.Key.Id,
-                    ProductName = g.Key.Name,
-                    TotalQuantitySold = g.Sum(x => x.Quantity)
-                })
-                .OrderByDescending(x => x.TotalQuantitySold)
-                .Take(10);
+                    o.Date,
+                    o.Quantity,
+                    ProductId = o.Product.Id,
+                    ProductName = o.Product.Name
+                });
 
             return Task.FromResult(query.Cast<object>());
         }
