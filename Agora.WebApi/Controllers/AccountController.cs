@@ -122,6 +122,12 @@ namespace Agora.Controllers
         [HttpPost("register-user")]
         public async Task<IActionResult> RegisterUser(RegUserViewModel regUser)
         {
+            var existingUser = await _userService.GetByCheckEmail(regUser.Email);
+            if (existingUser != null)
+            {
+                return BadRequest(new { message = "Email is already registered." });
+            }
+
             try
             {
                 string hashedPassword = HashPassword(regUser.Password);
@@ -180,37 +186,23 @@ namespace Agora.Controllers
         {
             UserDTO user = null;
 
-            try
-            {
-                user = await _userService.GetByEmail(model.Email);
-            }
-            catch (ValidationExceptionFromService ex)
-            {
-                if (ex.Message == "There is no user with this email")
-                {
-                    user = null;
-                }
-                else
-                {
-                    return StatusCode(500, new { message = "Internal Server Error" });
-                }
-            }
+            user = await _userService.GetByEmail(model.Email);
 
             if (user != null)
             {
-                if (user.GoogleId == "")
+                if (string.IsNullOrEmpty(user.GoogleId))
                 {
                     return new JsonResult(new { message = "You already have an account, but it's not linked to Google." }) { StatusCode = 400 };
                 }
 
-                if (user.Email.Equals(model.Email) && user.GoogleId == model.GoogleId)
+                if (user.GoogleId == model.GoogleId)
                 {
                     var role = await _userService.GetRoleByUserId(user.Id);
                     string jwtToken = _secureService.GenerateJwtToken(user, role);
-                    Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
+                    Response.Cookies.Append("jwt", jwtToken, new CookieOptions
                     {
                         HttpOnly = true,
-                        Secure = true, //  Если HTTPS то true
+                        Secure = true,
                         SameSite = SameSiteMode.None,
                         Expires = DateTime.UtcNow.AddMinutes(30)
                     });
@@ -231,28 +223,36 @@ namespace Agora.Controllers
                     GoogleId = model.GoogleId
                 };
 
-                bool result = await _userService.CreateGoogle(newUser);
-                if (result)
+                bool created = await _userService.CreateGoogle(newUser);
+                if (!created)
                 {
-                    var role = await _userService.GetRoleByUserId(user.Id);
-                    string jwtToken = _secureService.GenerateJwtToken(user, role);
-                    Response.Cookies.Append("jwt", jwtToken, new CookieOptions //добавление HTTP Only куки
-                    {
-                        HttpOnly = true,
-                        Secure = true, //  Если HTTPS то true
-                        SameSite = SameSiteMode.None,
-                        Expires = DateTime.UtcNow.AddMinutes(30)
-                    });
-                    CreateSessions(user.Id, role.Id, role.Role);
+                    return StatusCode(500, new { message = "Error occurred during Google registration." });
+                }
 
-                    return Ok(new { jwtToken });
-                }
-                else
+                user = await _userService.GetByEmail(model.Email);
+
+                // Создаём запись в Customer
+                bool customerCreated = await _customerService.CreateForUser(user.Id);
+                if (!customerCreated)
                 {
-                    return new JsonResult(new { message = "Error occurred during registration." }) { StatusCode = 500 };
+                    return StatusCode(500, new { message = "Error occurred while creating customer record." });
                 }
+
+                var role = await _userService.GetRoleByUserId(user.Id);
+
+                string jwtToken = _secureService.GenerateJwtToken(user, role);
+                Response.Cookies.Append("jwt", jwtToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddMinutes(30)
+                });
+
+                CreateSessions(user.Id, role.Id, role.Role);
+
+                return Ok(new { jwtToken });
             }
-
         }
 
         [HttpPost("login")]
