@@ -166,7 +166,6 @@ namespace Agora.Controllers
             }
         }
 
-
         private string HashPassword(string password)
         {
             using var hasher = new Argon2id(Encoding.UTF8.GetBytes(password));
@@ -263,7 +262,7 @@ namespace Agora.Controllers
             {
                 UserDTO user = await _userService.GetByEmail(model.Email);
                 if (user == null)
-                    return new JsonResult(new { message = "You don't have account! Sing up!" }) { StatusCode = 401 };
+                    return new JsonResult(new { message = "You don't have account! Sign up!" }) { StatusCode = 401 };
                 string hashedPass = HashPassword(model.Password);
                 if (user.Email.Equals(model.Email) && user.Password.Equals(hashedPass))
                 {
@@ -289,7 +288,7 @@ namespace Agora.Controllers
             }
             catch (ValidationExceptionFromService ex)
             {
-                return new JsonResult(new { message = "You have to sing up first!" }) { StatusCode = 401 };
+                return new JsonResult(new { message = "You have to sign up first!" }) { StatusCode = 401 };
             }
             catch (Exception ex)
             {
@@ -301,12 +300,13 @@ namespace Agora.Controllers
         [HttpGet("get-user-role")]
         public IActionResult GetUserRole()
         {
-            var authHeader = HttpContext.Request.Headers["JWT"].FirstOrDefault();
-            string token = null;
+            // достаем токен из заголовка
+            var token = HttpContext.Request.Headers["JWT"].FirstOrDefault();
 
-            if (!string.IsNullOrEmpty(authHeader))
+            // если не нашли, то ищем в куках
+            if (string.IsNullOrEmpty(token))
             {
-                token = authHeader;
+                token = Request.Cookies["jwt"];
             }
 
             if (string.IsNullOrEmpty(token))
@@ -314,11 +314,20 @@ namespace Agora.Controllers
                 return Unauthorized("No token provided.");
             }
 
-
             try
             {
                 var roleDTO = _secureService.DecryptJwtToken(token);
-                return Ok(new { Role = roleDTO.Role });
+
+                if (roleDTO == null || string.IsNullOrEmpty(roleDTO.Role))
+                {
+                    return Unauthorized("Invalid role or user.");
+                }
+
+                return Ok(new
+                {
+                    Role = roleDTO.Role,
+                    UserId = roleDTO.UserId
+                });
             }
             catch (SecurityTokenException)
             {
@@ -356,5 +365,31 @@ namespace Agora.Controllers
 
 
         }
+
+        [HttpGet("get-user/{id}")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            try
+            {
+                var user = await _userService.Get(id);
+                if (user == null)
+                    return NotFound("User not found");
+
+                var role = await _userService.GetRoleByUserId(user.Id);
+
+                return Ok(new
+                {
+                    name = user.Name,
+                    surname = user.Surname,
+                    email = user.Email,
+                    role = role.Role
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ошибка: {ex.Message}");
+            }
+        }
+
     }
 }
