@@ -9,6 +9,7 @@ using Agora.BLL.Infrastructure;
 using Agora.BLL.Interfaces;
 using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
+using Agora.DAL.Repository;
 using AutoMapper;
 
 namespace Agora.BLL.Services
@@ -181,6 +182,31 @@ namespace Agora.BLL.Services
             {
                 return false;
             }
+        }
+
+        public async Task<UserDTO> CreateAndReturn(UserDTO userDto)
+        {
+            var user = new User
+            {
+                Name = userDto.Name,
+                Surname = userDto.Surname,
+                PhoneNumber = userDto.PhoneNumber,
+                Email = userDto.Email,
+                Password = userDto.Password
+            };
+
+            await Database.Users.Create(user);
+            await Database.Save();
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Password = user.Password
+            };
         }
     }
 }
