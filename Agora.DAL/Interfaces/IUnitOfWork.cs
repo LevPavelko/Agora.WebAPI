@@ -26,7 +26,7 @@ namespace Agora.DAL.Interfaces
         IRepository<OrderItem> OrderItems { get; }
         IRepository<Payment> Payments { get; }
         IRepository<PaymentMethod> PaymentMethods { get; }
-        IRepository<Product> Products { get; }
+        IProductRepository Products { get; }
         IRepository<ProductReview> ProductReviews { get; }
         IRepository<Return> Returns { get; }
         IRepository<ReturnItem> ReturnItems { get; }

@@ -202,7 +202,7 @@ namespace Agora.DAL.Repository
                 return paymentRepository;
             }
         }
-        public IRepository<Product> Products
+        public IProductRepository Products
         {
             get
             {

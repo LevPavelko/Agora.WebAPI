@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Agora.BLL.DTO;
 using Agora.BLL.Interfaces;
@@ -12,10 +13,12 @@ namespace Agora.BLL.Services
     {
         IUnitOfWork Database { get; set; }
         IMapper _mapper;
-        public StatisticsService(IUnitOfWork database, IMapper mapper)
+        IProductService _productService;
+        public StatisticsService(IUnitOfWork database, IMapper mapper, IProductService productService)
         {
             Database = database;
             _mapper = mapper;
+            _productService = productService;
         }
         public async Task<List<WeeklyStatisticsDTO>> GetWeeksStatisticsBySales(int storeId)
         {
@@ -287,6 +290,50 @@ namespace Agora.BLL.Services
             
 
             return groupedByName;
+        }
+
+        public async Task<SellerTotalStatisticsDTO> GetRawStoreTotalStatisticsGeneral(int sellerId)
+        {
+            try
+            {
+                var objects = await Database.Statistics.GetRawStoreTotalStatisticsGeneral(sellerId);
+                var productsBySeller = await _productService.GetProductsBySeller(sellerId);
+                var totalProducts = productsBySeller.Count();
+                var totalOrderItems = 0;
+                var totalRevenue = 0m;
+                var customerIds = new HashSet<int>();
+           
+               
+            
+                foreach (var item in objects)
+                {
+                    var revenueProp = item.GetType().GetProperty("Revenue");
+                    var customerIdProp = item.GetType().GetProperty("CustomerId");
+
+                    var revenue = (decimal)revenueProp?.GetValue(item);
+                    var customerId = (int)customerIdProp?.GetValue(item);
+
+                    totalOrderItems += 1;
+                    totalRevenue += revenue;
+                    customerIds.Add(customerId);
+                }
+                var totalRevenueRounded = totalRevenue.ToString("#");
+
+                return new SellerTotalStatisticsDTO
+                {
+                    
+                    TotalProducts = totalProducts,
+                    TotalOrderItems = totalOrderItems,
+                    TotalRevenue = totalRevenueRounded,
+                    TotalCustomers = customerIds.Count
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+           
         }
 
 

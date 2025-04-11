@@ -3,6 +3,7 @@ using Agora.BLL.Interfaces;
 using Agora.BLL.Services;
 using Agora.DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using StackExchange.Redis;
 using System.Text.Json;
@@ -16,11 +17,13 @@ namespace Agora.Controllers
     {
         private readonly IConnectionMultiplexer _redis;
         private readonly IStatisticsService _statisticsService;
+        private readonly ISellerService _sellerService;
 
-        public StatisticsController(IConnectionMultiplexer redis, IStatisticsService statisticsService)
+        public StatisticsController(IConnectionMultiplexer redis, IStatisticsService statisticsService, ISellerService sellerService)
         {
             _redis = redis;
             _statisticsService = statisticsService;
+            _sellerService = sellerService;
         }
 
         [HttpGet("weekly-by-sales/{storeId}")]
@@ -162,5 +165,15 @@ namespace Agora.Controllers
             return Ok(data);
         }
 
+        [HttpGet("total-statistics-general/{sellerId}")]
+        public async Task<IActionResult> GetSellerTotalStatistics(int sellerId  )
+        {
+            SellerTotalStatisticsDTO  totalStatisticsGeneral = await _statisticsService.GetRawStoreTotalStatisticsGeneral(sellerId);
+            if(totalStatisticsGeneral == null)
+                return new JsonResult(new { message = "Server error!" }) { StatusCode = 500 };
+            SellerDTO seller = await _sellerService.Get(sellerId);
+            totalStatisticsGeneral.Rating = seller.Rating;
+            return Ok(totalStatisticsGeneral);
+        }
     }
 }

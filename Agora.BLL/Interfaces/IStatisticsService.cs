@@ -14,7 +14,7 @@ namespace Agora.BLL.Interfaces
         Task<List<DailyRevenueDTO>> GetPreviousMonthRevenueGeneral(int sellerId);
 
         Task<StoreTotalStatisticsDTO> GetStoreTotalStatistics(int storeId);
-
         Task<List<CategorySalesDTO>> GetSalesByCategoriesGeneral(int sellerId);
+        Task<SellerTotalStatisticsDTO> GetRawStoreTotalStatisticsGeneral(int sellerId);
     }
 }

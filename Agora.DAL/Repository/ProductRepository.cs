@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Agora.DAL.Repository
 {
-    public class ProductRepository: IRepository<Product>
+    public class ProductRepository: IProductRepository
     {
         private AgoraContext db;
         public ProductRepository(AgoraContext context)
@@ -23,7 +23,10 @@ namespace Agora.DAL.Repository
         {
             return await db.Products.FindAsync(id);
         }
-
+        public async Task<IQueryable<Product>> GetProductsBySeller(int sellerId)
+        {
+            return db.Products.Where(p=> p.Store.SellerId == sellerId);
+        }
         public async Task Create(Product product)
         {
             await db.Products.AddAsync(product);
