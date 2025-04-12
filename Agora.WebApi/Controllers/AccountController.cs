@@ -378,13 +378,15 @@ namespace Agora.Controllers
 
                 var role = await _userService.GetRoleByUserId(user.Id);
 
-                return Ok(new
+                var profile = new UserProfileDTO
                 {
-                    name = user.Name,
-                    surname = user.Surname,
-                    email = user.Email,
-                    role = role.Role
-                });
+                    Name = user.Name!,
+                    Surname = user.Surname!,
+                    Email = user.Email!,
+                    Role = role.Role
+                };
+
+                return Ok(profile);
             }
             catch (Exception ex)
             {
