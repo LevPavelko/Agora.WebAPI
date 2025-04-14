@@ -23,7 +23,7 @@ namespace Agora.DAL.Interfaces
         IRepository<FAQCategory> FAQCategories { get; }
         IRepository<GiftCard> GiftCards { get; }
         IRepository<Order> Orders { get; }
-        IRepository<OrderItem> OrderItems { get; }
+        IOrderItemRepository OrderItems { get; }
         IRepository<Payment> Payments { get; }
         IRepository<PaymentMethod> PaymentMethods { get; }
         IProductRepository Products { get; }

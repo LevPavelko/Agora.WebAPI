@@ -10,6 +10,7 @@ namespace Agora.BLL.Interfaces
     public interface IOrderItemService
     {
         Task<IQueryable<OrderItemDTO>> GetAll();
+        Task<List<OrderItemDTO>> GetNewOrders(int storeId);
         Task<OrderItemDTO> Get(int id);
         Task Create(OrderItemDTO orderItemDTO);
         Task Update(OrderItemDTO orderItemDTO);

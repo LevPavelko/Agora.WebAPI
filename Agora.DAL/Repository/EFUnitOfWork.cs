@@ -175,7 +175,7 @@ namespace Agora.DAL.Repository
                 return orderRepository;
             }
         }
-        public IRepository<OrderItem> OrderItems
+        public IOrderItemRepository OrderItems
         {
             get
             {

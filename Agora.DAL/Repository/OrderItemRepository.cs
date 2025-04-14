@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agora.DAL.Repository
 {
-    public class OrderItemRepository: IRepository<OrderItem>
+    public class OrderItemRepository: IOrderItemRepository
     {
         private AgoraContext db;
         public OrderItemRepository(AgoraContext context)
@@ -16,6 +16,10 @@ namespace Agora.DAL.Repository
         public async Task<IQueryable<OrderItem>> GetAll()
         {
             return db.OrderItems;
+        }
+        public async Task<IQueryable<OrderItem>> GetNewOrders(int storeId)
+        {
+            return db.OrderItems.Where(o => o.Product.Store.Id == storeId && o.Status == Enums.OrderStatus.Pending);
         }
 
         public async Task<OrderItem> Get(int id)

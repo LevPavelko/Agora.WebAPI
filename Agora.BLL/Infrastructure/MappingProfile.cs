@@ -40,7 +40,8 @@ namespace Agora.BLL.Infrastructure
             CreateMap<Payment, PaymentDTO>();
             CreateMap<PaymentMethod, PaymentMethodDTO>();
             CreateMap<Order, OrderDTO>();
-            CreateMap<OrderItem, OrderItemDTO>();
+            CreateMap<OrderItem, OrderItemDTO>()
+                .ForMember(dest => dest.ProductDTO, opt => opt.MapFrom(src => src.Product));
         }
     }
 }

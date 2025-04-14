@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Agora.Enums;
 
 namespace Agora.BLL.DTO
 {
@@ -11,5 +12,9 @@ namespace Agora.BLL.DTO
         public int Id { get; set; }
         public decimal PriceAtMoment { get; set; }
         public int Quantity { get; set; }
+        public ProductDTO ProductDTO { get; set; }
+        public DateOnly Date { get; set; }
+        public OrderStatus Status { get; set; }
+
     }
 }
