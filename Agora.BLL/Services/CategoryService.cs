@@ -3,11 +3,6 @@ using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 using AutoMapper;
 using Agora.BLL.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Agora.BLL.Interfaces;
 
 namespace Agora.BLL.Services
@@ -22,14 +17,13 @@ namespace Agora.BLL.Services
             Database = uow;
             _mapper = mapper;
         }
+
         public async Task<IEnumerable<CategoryDTO>> GetAll()
         {
             var categories = await Database.Categories.GetAll();
             return _mapper.Map<IQueryable<Category>, IEnumerable<CategoryDTO>>(categories);
         }
-
-       
-
+      
         public async Task<CategoryDTO> Get(int id)
         {
             var category = await Database.Categories.Get(id);
@@ -52,6 +46,7 @@ namespace Agora.BLL.Services
             await Database.Categories.Create(category);
             await Database.Save();
         }
+
         public async Task Update(CategoryDTO categoryDTO)
         {
             var category = new Category
