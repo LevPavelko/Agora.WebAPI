@@ -394,5 +394,16 @@ namespace Agora.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // очищаем куки
+            Response.Cookies.Delete("jwt");
+            Response.Cookies.Delete("userId");
+            Response.Cookies.Delete("id");
+            Response.Cookies.Delete("role");
+
+            return Ok(new { message = "Logged out successfully" });
+        }
     }
 }
