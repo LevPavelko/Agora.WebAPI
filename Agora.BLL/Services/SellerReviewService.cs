@@ -9,6 +9,7 @@ using Agora.BLL.Interfaces;
 using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace Agora.BLL.Services
 {
@@ -21,11 +22,23 @@ namespace Agora.BLL.Services
             Database = database;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<SellerReviewDTO>> GetAll()
+        /*public async Task<IEnumerable<SellerReviewDTO>> GetAll()
         {
             var sellerReviews = await Database.SellerReviews.GetAll();
             return _mapper.Map<IQueryable<SellerReview>, IEnumerable<SellerReviewDTO>>(sellerReviews);
+        }*/
+        public async Task<IEnumerable<SellerReviewDTO>> GetAll()
+        {
+            var query = await Database.SellerReviews.GetAll(); // теперь query — IQueryable<SellerReview>
+
+            var sellerReviews = await query
+                .Include(r => r.Customer)
+                    .ThenInclude(c => c.User)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<SellerReviewDTO>>(sellerReviews);
         }
+
         public async Task<SellerReviewDTO> Get(int id)
         {
             var sellerReview = await Database.SellerReviews.Get(id);
