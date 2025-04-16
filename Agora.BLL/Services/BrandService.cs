@@ -4,11 +4,6 @@ using Agora.DAL.Entities;
 using Agora.DAL.Interfaces;
 using AutoMapper;
 using Agora.BLL.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Agora.BLL.Services
 {
@@ -22,11 +17,12 @@ namespace Agora.BLL.Services
             Database = uow;
             _mapper = mapper;
         }
-
-        public async Task<IQueryable<BrandDTO>> GetAll()
+     
+        public async Task<IEnumerable<BrandDTO>> GetAll()
         {
             var brands = await Database.Brands.GetAll();
-            return _mapper.Map<IQueryable<BrandDTO>>(brands.ToList());
+
+            return _mapper.Map<IQueryable<Brand>, IEnumerable<BrandDTO>>(brands);
         }
 
         public async Task<BrandDTO> Get(int id)

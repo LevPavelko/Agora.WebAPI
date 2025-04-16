@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Agora.BLL.DTO;
+﻿using Agora.BLL.DTO;
 using Agora.BLL.Infrastructure;
 using Agora.BLL.Interfaces;
 using Agora.DAL.Entities;
@@ -22,11 +17,12 @@ namespace Agora.BLL.Services
             _mapper = mapper;
         }
 
-        public async Task<IQueryable<SubcategoryDTO>> GetAll()
+        public async Task<IEnumerable<SubcategoryDTO>> GetAll()
         {
             var subcategories = await Database.Subcategories.GetAll();
-            return _mapper.Map<IQueryable<SubcategoryDTO>>(subcategories.ToList());
+            return _mapper.Map<IEnumerable<SubcategoryDTO>>(subcategories);
         }
+
         public async Task<SubcategoryDTO> Get(int id)
         {
             var subcategory = await Database.Subcategories.Get(id);
@@ -38,6 +34,7 @@ namespace Agora.BLL.Services
                 Name = subcategory.Name
             };
         }
+
         public async Task Create(SubcategoryDTO subcategoryDTO)
         {
             var subcategory = new Subcategory
@@ -48,6 +45,7 @@ namespace Agora.BLL.Services
             await Database.Save();
 
         }
+
         public async Task Update(SubcategoryDTO subcategoryDTO)
         {
             var subcategory = new Subcategory
@@ -58,6 +56,7 @@ namespace Agora.BLL.Services
             Database.Subcategories.Update(subcategory);
             await Database.Save();
         }
+
         public async Task Delete(int id)
         {
             await Database.Subcategories.Delete(id);
