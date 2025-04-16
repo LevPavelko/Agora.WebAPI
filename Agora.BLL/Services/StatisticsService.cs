@@ -235,15 +235,18 @@ namespace Agora.BLL.Services
                 totalRevenue += revenue;
                 customerIds.Add(customerId);
             }
+        var totalRevenueRounded = Math.Round(totalRevenue).ToString(CultureInfo.InvariantCulture);
+
 
             return new StoreTotalStatisticsDTO
             {
                 TotalSoldItems = totalSoldItems,
                 TotalOrderItems = totalOrderItems,
-                TotalRevenue = totalRevenue,
+                TotalRevenue = totalRevenueRounded,
                 TotalCustomers = customerIds.Count
             };
         }
+        
         public async Task<List<DailyRevenueDTO>> GetPrePreviousMonthRevenueGeneral(int sellerId)
         {
             IQueryable<object> objects = await Database.Statistics.GetPrePreviousMonthRevenueGeneral(sellerId);

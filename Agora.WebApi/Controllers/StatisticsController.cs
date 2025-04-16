@@ -150,6 +150,47 @@ namespace Agora.Controllers
 
 
         }
+        [HttpGet("revenue/general-monthly/store/{storeId}")]
+        public async Task<IActionResult> GetMonthGeneralStore(int storeId)
+        {
+            var db = _redis.GetDatabase();
+            var twoMonthAgo = DateTime.Now.AddMonths(-2);
+            var oneMonthAgo = DateTime.Now.AddMonths(-1);
+
+            var thisMonthKey = $"monthly_revenue:{oneMonthAgo.Year}-{oneMonthAgo.Month:D2}:{storeId}";
+            var lastMonthKey = $"monthly_revenue:{twoMonthAgo.Year}-{twoMonthAgo.Month:D2}:{storeId}";
+
+            var thisMonthJson = await db.StringGetAsync(thisMonthKey);
+            var lastMonthJson = await db.StringGetAsync(lastMonthKey);
+
+            if (thisMonthJson.IsNullOrEmpty || lastMonthJson.IsNullOrEmpty)
+            {
+                return NotFound("Revenue data not found for one or both months.");
+            }
+
+            var thisMonthData = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(thisMonthJson);
+            var lastMonthData = JsonSerializer.Deserialize<List<DailyRevenueDTO>>(lastMonthJson);
+
+            List<MonthlyRevenueDTO> list = new List<MonthlyRevenueDTO>();
+
+            foreach (var thisDay in thisMonthData)
+            {
+                var matchingDay = lastMonthData.FirstOrDefault(x => x.Date.Day == thisDay.Date.Day);
+                if (matchingDay != null)
+                {
+                    MonthlyRevenueDTO revenueDTO = new MonthlyRevenueDTO
+                    {
+                        Date = thisDay.Date.ToString("dd-MM"),
+                        ThisMonth = thisDay.Revenue,
+                        LastMonth = matchingDay.Revenue
+                    };
+                    list.Add(revenueDTO);
+                }
+            }
+
+            return Ok(list);
+        }
+
 
 
         [HttpGet("category-sales/{sellerId}")]
