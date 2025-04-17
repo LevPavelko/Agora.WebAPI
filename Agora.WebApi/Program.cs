@@ -24,37 +24,7 @@ namespace Agora
             builder.Services.AddAgoraContext(connection);
 
             builder.Services.AddUnitOfWorkService();
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IAddressService, AddressService>();
-            builder.Services.AddScoped<IAdminService, AdminService>();
-            builder.Services.AddScoped<IBankCardService, BankCardService>();
-            builder.Services.AddScoped<IBrandService, BrandService>();
-            builder.Services.AddScoped<ICashbackService, CashbackService>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<ICountryService, CountryService>();
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<IDeliveryOptionsService, DeliveryOptionsService>();
-            builder.Services.AddScoped<IDiscountService, DiscountService>();
-            builder.Services.AddScoped<IFAQCategoryService, FAQCategoryService>();
-            builder.Services.AddScoped<IFAQService, FAQService>();
-            builder.Services.AddScoped<IGiftCardService, GiftCardService>();
-            builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-            builder.Services.AddScoped<IOrderService, OrderService>();
-            builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
-            builder.Services.AddScoped<IPaymentService, PaymentService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<IReturnItemService, ReturnItemService>();
-            builder.Services.AddScoped<IReturnService, ReturnService>();
-            builder.Services.AddScoped<ISellerReviewService, SellerReviewService>();
-            builder.Services.AddScoped<ISellerService, SellerService>();
-            builder.Services.AddScoped<IShippingService, ShippingService>();
-            builder.Services.AddScoped<IStoreService, StoreService>();
-            builder.Services.AddScoped<ISubcategoryService, SubcategoryService>();
-            builder.Services.AddScoped<ISupportService, SupportService>();
-            builder.Services.AddScoped<IWishlistService, WishlistService>();
-            builder.Services.AddScoped<ISecureService, SecureService>();
-            builder.Services.AddScoped<IStatisticsService, StatisticsService>();
-            builder.Services.AddHostedService<StatisticsCacheService>();
+            builder.Services.AddBusinessServices();
 
             // for Redis caching:
             try
